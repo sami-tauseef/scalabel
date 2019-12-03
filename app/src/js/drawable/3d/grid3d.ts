@@ -12,12 +12,17 @@ import { Shape3D } from './shape3d'
 export class Grid3D extends Shape3D {
   /** grid lines */
   private _lines: THREE.GridHelper
+  /** Whether label is selected */
+  private _selected: boolean
 
   constructor (label: Label3D) {
     super(label)
-    this._lines = new THREE.GridHelper(6, 6, 0xffffff, 0xffffff)
+    this._lines = new THREE.GridHelper(1, 6, 0xffffff, 0xffffff)
     this._lines.rotation.x = Math.PI / 2
     this.add(this._lines)
+    this._selected = false
+    // this.scale.x = 6
+    // this.scale.y = 6
   }
 
   /** Get shape type name */
@@ -30,6 +35,11 @@ export class Grid3D extends Shape3D {
     this.position.copy(center.toThree())
   }
 
+  /** For setting whether this is selected */
+  public set selected (s: boolean) {
+    this._selected = s
+  }
+
   /**
    * Add to scene for rendering
    * @param scene
@@ -39,8 +49,14 @@ export class Grid3D extends Shape3D {
   }
 
   /** Do not highlight plane for now */
-  public setHighlighted (_intersection: THREE.Intersection) {
-    return
+  public setHighlighted (intersection?: THREE.Intersection) {
+    if (intersection && intersection.object === this._lines) {
+      { (this._lines.material as THREE.LineBasicMaterial).color.set(0xff0000) }
+      (this._lines.material as THREE.LineBasicMaterial).needsUpdate = true
+    } else {
+      { (this._lines.material as THREE.LineBasicMaterial).color.set(0xffffff) }
+      (this._lines.material as THREE.LineBasicMaterial).needsUpdate = true
+    }
   }
 
   /**
@@ -66,7 +82,43 @@ export class Grid3D extends Shape3D {
     if (this._control) {
       this._control.raycast(raycaster, intersects)
     }
-    this._lines.raycast(raycaster, intersects)
+
+    if (this._selected) {
+      const ray = raycaster.ray
+      const normal = new THREE.Vector3(0, 0, 1)
+      normal.applyEuler(this.rotation)
+      const plane = new THREE.Plane()
+      plane.setFromNormalAndCoplanarPoint(normal, this.position)
+      const target = new THREE.Vector3()
+      const intersection = ray.intersectPlane(plane, target)
+      if (intersection) {
+        const worldToPlane = new THREE.Matrix4()
+        worldToPlane.getInverse(this.matrixWorld)
+        const intersectionPlane = new THREE.Vector3()
+        intersectionPlane.copy(intersection)
+        intersectionPlane.applyMatrix4(worldToPlane)
+        if (
+          intersectionPlane.x <= 0.5 &&
+          intersectionPlane.x >= -0.5 &&
+          intersectionPlane.y >= -0.5 &&
+          intersectionPlane.y >= -0.5
+        ) {
+          const difference = new THREE.Vector3()
+          difference.copy(intersection)
+          difference.sub(ray.origin)
+          const distance = difference.length()
+          if (distance < raycaster.far && distance > raycaster.near) {
+            intersects.push({
+              distance,
+              point: intersection,
+              object: this._lines
+            })
+          }
+        }
+      }
+    } else {
+      this._lines.raycast(raycaster, intersects)
+    }
   }
 
   /**

@@ -24,6 +24,17 @@ export class Plane3D extends Label3D {
     this._temporaryLabel = null
   }
 
+  /** Override set selected method */
+  public set selected (s: boolean) {
+    super.selected = s
+    this._shape.selected = s
+  }
+
+  /** Override get selected */
+  public get selected (): boolean {
+    return super.selected
+  }
+
   /**
    * Modify ThreeJS objects to draw label
    * @param {THREE.Scene} scene: ThreeJS Scene Object
@@ -41,17 +52,28 @@ export class Plane3D extends Label3D {
   public detachControl (): void {
     this._shape.detachControl()
   }
+  /**
+   * Highlight box
+   * @param intersection
+   */
+  public setHighlighted (intersection?: THREE.Intersection) {
+    super.setHighlighted(intersection)
+    this._shape.setHighlighted(intersection)
+  }
 
   /**
    * Handle mouse move
    * @param projection
    */
   public onMouseDown (x: number, y: number, camera: THREE.Camera) {
-    if (this._label) {
+    if (this._label && this.selected) {
       this._temporaryLabel = new Box3D()
       this._temporaryLabel.init(this._label.item, 0, undefined, undefined, true)
-      this._temporaryLabel.onMouseDown(x, y, camera)
       this.addChild(this._temporaryLabel)
+      for (const shape of this._temporaryLabel.shapes()) {
+        this._shape.add(shape)
+      }
+      return this._temporaryLabel.onMouseDown(x, y, camera)
     }
     return false
   }
@@ -63,8 +85,9 @@ export class Plane3D extends Label3D {
   public onMouseUp () {
     if (this._temporaryLabel) {
       this._temporaryLabel.onMouseUp()
-      if (this._temporaryLabel.temporary) {
-        this.removeChild(this._temporaryLabel)
+      this.removeChild(this._temporaryLabel)
+      for (const shape of this._temporaryLabel.shapes()) {
+        this._shape.remove(shape)
       }
     }
   }

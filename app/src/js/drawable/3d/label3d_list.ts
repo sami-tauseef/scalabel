@@ -213,6 +213,7 @@ export class Label3DList {
       if (selectedLabelIds.length === 1 &&
           selectedLabelIds[0] in this._labels) {
         this._selectedLabel = this._labels[select.labels[select.item][0]]
+        this._selectedLabel.selected = true
         this._selectedLabel.attachControl(this.control)
       }
     }

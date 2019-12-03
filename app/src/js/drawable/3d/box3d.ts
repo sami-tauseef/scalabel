@@ -72,6 +72,7 @@ export class Box3D extends Label3D {
   /** Override set parent */
   public set parent (parent: Label3D | null) {
     super.parent = parent
+    console.log('set box parent')
     if (parent && parent.label.type === LabelTypeName.PLANE_3D) {
       this._shape.attachToPlane(parent as Plane3D)
     } else {
@@ -134,10 +135,7 @@ export class Box3D extends Label3D {
     return
   }
 
-  /**
-   * Handle mouse move
-   * @param projection
-   */
+  /** Handle mouse move */
   public onMouseMove (x: number, y: number, camera: THREE.Camera) {
     const success = this._shape.drag(x, y, camera)
     if (this._temporary && success) {
@@ -180,8 +178,7 @@ export class Box3D extends Label3D {
 
   /**
    * Highlight box
-   * @param h
-   * @param raycaster
+   * @param intersection
    */
   public setHighlighted (intersection?: THREE.Intersection) {
     super.setHighlighted(intersection)

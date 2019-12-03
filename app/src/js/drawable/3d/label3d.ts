@@ -132,12 +132,12 @@ export abstract class Label3D {
 
   /** add child */
   public addChild (child: Label3D) {
-    if (child._parent !== this) {
-      if (child._parent) {
-        child._parent.removeChild(child)
+    if (child.parent !== this) {
+      if (child.parent) {
+        child.parent.removeChild(child)
       }
       this._children.push(child)
-      child._parent = this
+      child.parent = this
     }
   }
 
@@ -146,7 +146,7 @@ export abstract class Label3D {
     const index = this._children.indexOf(child)
     if (index >= 0) {
       this._children.splice(index, 1)
-      child._parent = null
+      child.parent = null
     }
   }
 
@@ -246,14 +246,6 @@ export abstract class Label3D {
     this._labelId = this._label.id
     this._trackId = this._label.track
     this._color = getColorById(this._labelId, this._trackId)
-    const select = state.user.select
-    if (this._label.item in select.labels &&
-        select.labels[this._label.item].includes(labelId)) {
-      this.selected = true
-    } else {
-      this.selected = false
-      this.detachControl()
-    }
   }
 }
 
