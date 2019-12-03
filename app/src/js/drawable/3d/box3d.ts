@@ -20,13 +20,10 @@ import { Shape3D } from './shape3d'
 export class Box3D extends Label3D {
   /** ThreeJS object for rendering shape */
   private _shape: Cube3D
-  /** Whether this is temporary */
-  private _temporary: boolean
 
   constructor (labelList: Label3DList) {
     super(labelList)
     this._shape = new Cube3D(this)
-    this._temporary = false
   }
 
   /**
@@ -37,7 +34,8 @@ export class Box3D extends Label3D {
     itemIndex: number,
     category: number,
     center?: Vector3D,
-    sensors?: number[]
+    sensors?: number[],
+    temporary?: boolean
   ): void {
     this._label = makeLabel({
       type: LabelTypeName.BOX_3D, id: -1, item: itemIndex,
@@ -47,6 +45,10 @@ export class Box3D extends Label3D {
 
     if (center) {
       this._shape.center = center
+    }
+
+    if (temporary) {
+      this._temporary = true
     }
   }
 
@@ -67,16 +69,14 @@ export class Box3D extends Label3D {
     ]
   }
 
-  /** Attach label to plane */
-  public attachToPlane (plane: Plane3D) {
-    super.attachToPlane(plane)
-    this._shape.attachToPlane(plane)
-  }
-
-  /** Attach label to plane */
-  public detachFromPlane () {
-    this._shape.detachFromPlane()
-    super.detachFromPlane()
+  /** Override set parent */
+  public set parent (parent: Label3D | null) {
+    super.parent = parent
+    if (parent && parent.label.type === LabelTypeName.PLANE_3D) {
+      this._shape.attachToPlane(parent as Plane3D)
+    } else {
+      this._shape.detachFromPlane()
+    }
   }
 
   /**
@@ -207,27 +207,4 @@ export class Box3D extends Label3D {
       label.shapes[0]
     )
   }
-
-  // /**
-  //  * Add this label to state when newly created
-  //  */
-  // private addToState () {
-  //   if (this._label) {
-  //     const cube = this._shape.toCube()
-  //     if (Session.tracking && this._trackId in Session.tracks) {
-  //       Session.tracks[this._trackId].onLabelCreated(
-  //         this._label.item, this
-  //       )
-  //     } else {
-  //       Session.dispatch(addBox3dLabel(
-  //         this._label.item,
-  //         this._label.category,
-  //         cube.center,
-  //         cube.size,
-  //         cube.orientation,
-  //         cube.surfaceId
-  //       ))
-  //     }
-  //   }
-  // }
 }

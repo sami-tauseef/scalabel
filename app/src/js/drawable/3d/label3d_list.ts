@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { policyFromString } from '../../common/track_policies/track_policy'
 import { LabelTypeName, TrackPolicyType } from '../../common/types'
 import { makeState } from '../../functional/states'
-import { CubeType, State } from '../../functional/types'
+import { State } from '../../functional/types'
 import { Box3D } from './box3d'
 import { TransformationControl } from './control/transformation_control'
 import { Label3D, labelTypeFromString } from './label3d'
@@ -167,7 +167,6 @@ export class Label3DList {
     for (const key of Object.keys(this._labels)) {
       const id = Number(key)
       if (!(id in item.labels)) {
-        this._labels[id].detachFromPlane()
         this._labels[id].detachControl()
 
         for (const shape of Object.values(this._labels[id].shapes())) {
@@ -201,17 +200,6 @@ export class Label3DList {
         // for (const shape of newLabels[id].shapes()) {
         //   shape.layers.disableAll()
         // }
-      }
-    }
-
-    // Attach shapes to plane
-    for (const key of Object.keys(item.labels)) {
-      const id = Number(key)
-      if (item.labels[id].type === LabelTypeName.BOX_3D) {
-        const shape = item.shapes[item.labels[id].shapes[0]].shape as CubeType
-        if (shape.surfaceId >= 0) {
-          newLabels[id].attachToPlane(newLabels[shape.surfaceId] as Plane3D)
-        }
       }
     }
 

@@ -41,8 +41,12 @@ export abstract class Label3D {
   protected _color: number[]
   /** plane if attached */
   protected _plane: Plane3D | null
-  /** label list this belongs to */
-  protected _labelList: Label3DList
+  /** parent label if any */
+  protected _parent: Label3D | null
+  /** children if any */
+  protected _children: Label3D[]
+  /** Whether this is temporary */
+  protected _temporary: boolean
 
   constructor (labelList: Label3DList) {
     this._index = -1
@@ -54,7 +58,9 @@ export abstract class Label3D {
     this._label = null
     this._color = [0, 0, 0, 1]
     this._plane = null
-    this._labelList = labelList
+    this._parent = null
+    this._children = []
+    this._temporary = false
   }
 
   /**
@@ -82,6 +88,21 @@ export abstract class Label3D {
     return this._label
   }
 
+  /** Get parent label */
+  public get parent (): Label3D | null {
+    return this._parent
+  }
+
+  /** Set parent label */
+  public set parent (parent: Label3D | null) {
+    this._parent = parent
+  }
+
+  /** Get children */
+  public get children (): Readonly<Label3D[]> {
+    return this._children
+  }
+
   /** select the label */
   public set selected (s: boolean) {
     this._selected = s
@@ -90,6 +111,11 @@ export abstract class Label3D {
   /** return whether label selected */
   public get selected (): boolean {
     return this._selected
+  }
+
+  /** Return whether this label is temporary (not committed to state) */
+  public get temporary (): boolean {
+    return this._temporary
   }
 
   /** Get shape id's and shapes for updating */
@@ -104,18 +130,23 @@ export abstract class Label3D {
     }
   }
 
-  /** Attach label to plane */
-  public attachToPlane (plane: Plane3D) {
-    if (plane === this._plane) {
-      return
+  /** add child */
+  public addChild (child: Label3D) {
+    if (child._parent !== this) {
+      if (child._parent) {
+        child._parent.removeChild(child)
+      }
+      this._children.push(child)
+      child._parent = this
     }
-    this._plane = plane
   }
 
-  /** Attach label to plane */
-  public detachFromPlane () {
-    if (this._plane) {
-      this._plane = null
+  /** remove child */
+  public removeChild (child: Label3D) {
+    const index = this._children.indexOf(child)
+    if (index >= 0) {
+      this._children.splice(index, 1)
+      child._parent = null
     }
   }
 
@@ -195,7 +226,8 @@ export abstract class Label3D {
     itemIndex: number,
     category: number,
     center?: Vector3D,
-    sensors?: number[]
+    sensors?: number[],
+    temporary?: boolean
   ): void
 
   /**

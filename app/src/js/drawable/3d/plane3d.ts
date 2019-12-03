@@ -2,6 +2,7 @@ import { LabelTypeName, ShapeTypeName } from '../../common/types'
 import { makeLabel } from '../../functional/states'
 import { ShapeType, State } from '../../functional/types'
 import { Vector3D } from '../../math/vector3d'
+import { Box3D } from './box3d'
 import { TransformationControl } from './control/transformation_control'
 import { Grid3D } from './grid3d'
 import Label3D from './label3d'
@@ -14,10 +15,13 @@ import { Shape3D } from './shape3d'
 export class Plane3D extends Label3D {
   /** ThreeJS object for rendering shape */
   private _shape: Grid3D
+  /** temporary shape */
+  private _temporaryLabel: Label3D | null
 
   constructor (labelList: Label3DList) {
     super(labelList)
     this._shape = new Grid3D(this)
+    this._temporaryLabel = null
   }
 
   /**
@@ -42,7 +46,13 @@ export class Plane3D extends Label3D {
    * Handle mouse move
    * @param projection
    */
-  public onMouseDown (_x: number, _y: number, _camera: THREE.Camera) {
+  public onMouseDown (x: number, y: number, camera: THREE.Camera) {
+    if (this._label) {
+      this._temporaryLabel = new Box3D()
+      this._temporaryLabel.init(this._label.item, 0, undefined, undefined, true)
+      this._temporaryLabel.onMouseDown(x, y, camera)
+      this.addChild(this._temporaryLabel)
+    }
     return false
   }
 
@@ -51,7 +61,12 @@ export class Plane3D extends Label3D {
    * @param projection
    */
   public onMouseUp () {
-    return
+    if (this._temporaryLabel) {
+      this._temporaryLabel.onMouseUp()
+      if (this._temporaryLabel.temporary) {
+        this.removeChild(this._temporaryLabel)
+      }
+    }
   }
 
   /**
@@ -59,25 +74,11 @@ export class Plane3D extends Label3D {
    * @param projection
    */
   public onMouseMove (
-    _x: number, _y: number, _camera: THREE.Camera
+    x: number, y: number, camera: THREE.Camera
   ): boolean {
-    return false
-  }
-
-  /**
-   * Handle keyboard events
-   * @param {KeyboardEvent} e
-   * @returns true if consumed, false otherwise
-   */
-  public onKeyDown (_e: KeyboardEvent): boolean {
-    return false
-  }
-
-  /**
-   * Handle keyboard events
-   * @returns true if consumed, false otherwise
-   */
-  public onKeyUp (_e: KeyboardEvent): boolean {
+    if (this._temporaryLabel) {
+      return this._temporaryLabel.onMouseMove(x, y, camera)
+    }
     return false
   }
 

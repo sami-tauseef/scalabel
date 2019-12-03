@@ -44,8 +44,6 @@ export class Cube3D extends Shape3D {
   private _highlightedSphere: THREE.Mesh | null
   /** Plane shape */
   private _grid: Readonly<Grid3D> | null
-  /** Id of surface */
-  private _surfaceId: number
   /** First corner for temp init */
   private _firstCorner: Vector2D | null
 
@@ -99,8 +97,6 @@ export class Cube3D extends Shape3D {
     this._highlightedSphere = null
 
     this._grid = null
-
-    this._surfaceId = -1
 
     this._firstCorner = null
 
@@ -175,14 +171,6 @@ export class Cube3D extends Shape3D {
     return this._box
   }
 
-  /**
-   * Set surface id
-   * @param id
-   */
-  public set surfaceId (id: number) {
-    this._surfaceId = id
-  }
-
   /** Return state representation of shape */
   /**
    * Convert to state representation
@@ -192,8 +180,7 @@ export class Cube3D extends Shape3D {
       center: this.center.toObject(),
       size: this.size.toObject(),
       orientation: this.orientation.toObject(),
-      anchorIndex: this._anchorIndex,
-      surfaceId: this._surfaceId
+      anchorIndex: this._anchorIndex
     }
   }
 
