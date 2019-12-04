@@ -94,7 +94,9 @@ export class Label3DHandler {
       if (consumed) {
         this._mouseDownOnSelection = true
         // Set current label as selected label
-        this.selectHighlighted()
+        if (this._highlightedLabel !== Session.label3dList.selectedLabel) {
+          this.selectHighlighted()
+        }
         return false
       }
     }

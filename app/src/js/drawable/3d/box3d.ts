@@ -72,7 +72,6 @@ export class Box3D extends Label3D {
   /** Override set parent */
   public set parent (parent: Label3D | null) {
     super.parent = parent
-    console.log('set box parent')
     if (parent && parent.label.type === LabelTypeName.PLANE_3D) {
       this._shape.attachToPlane(parent as Plane3D)
     } else {

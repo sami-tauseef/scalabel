@@ -197,7 +197,6 @@ export class Cube3D extends Shape3D {
    */
   public attachToPlane (plane: Plane3D) {
     this._grid = plane.shapes()[0] as Grid3D
-    this._grid.add(this)
   }
 
   /**
@@ -205,9 +204,6 @@ export class Cube3D extends Shape3D {
    * @param plane
    */
   public detachFromPlane () {
-    if (this._grid) {
-      this._grid.remove(this)
-    }
     this._grid = null
   }
 

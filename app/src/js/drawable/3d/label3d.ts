@@ -96,6 +96,11 @@ export abstract class Label3D {
   /** Set parent label */
   public set parent (parent: Label3D | null) {
     this._parent = parent
+    if (parent && this._label) {
+      this._label.parent = parent.labelId
+    } else if (this._label) {
+      this._label.parent = -1
+    }
   }
 
   /** Get children */
@@ -138,6 +143,9 @@ export abstract class Label3D {
       }
       this._children.push(child)
       child.parent = this
+      if (this._label) {
+        this._label.children.push(child.labelId)
+      }
     }
   }
 
@@ -147,6 +155,12 @@ export abstract class Label3D {
     if (index >= 0) {
       this._children.splice(index, 1)
       child.parent = null
+      if (this._label) {
+        const stateIndex = this._label.children.indexOf(child.labelId)
+        if (stateIndex >= 0) {
+          this._label.children.splice(stateIndex, 1)
+        }
+      }
     }
   }
 

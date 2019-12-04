@@ -71,7 +71,7 @@ export class Plane3D extends Label3D {
       this._temporaryLabel.init(this._label.item, 0, undefined, undefined, true)
       this.addChild(this._temporaryLabel)
       for (const shape of this._temporaryLabel.shapes()) {
-        this._shape.add(shape)
+        this._shape.attach(shape)
       }
       return this._temporaryLabel.onMouseDown(x, y, camera)
     }
@@ -85,10 +85,6 @@ export class Plane3D extends Label3D {
   public onMouseUp () {
     if (this._temporaryLabel) {
       this._temporaryLabel.onMouseUp()
-      this.removeChild(this._temporaryLabel)
-      for (const shape of this._temporaryLabel.shapes()) {
-        this._shape.remove(shape)
-      }
     }
   }
 
@@ -151,6 +147,16 @@ export class Plane3D extends Label3D {
       label.shapes[0],
       activeCamera
     )
+
+    const currentChildren = [...this._children]
+    for (const child of currentChildren) {
+      if (!label.children.includes(child.labelId)) {
+        this.removeChild(child)
+        for (const shape of child.shapes()) {
+          this._shape.remove(shape)
+        }
+      }
+    }
   }
 
   /**

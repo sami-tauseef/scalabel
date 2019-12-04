@@ -21,8 +21,8 @@ export class Grid3D extends Shape3D {
     this._lines.rotation.x = Math.PI / 2
     this.add(this._lines)
     this._selected = false
-    // this.scale.x = 6
-    // this.scale.y = 6
+    this.scale.x = 6
+    this.scale.y = 6
   }
 
   /** Get shape type name */
