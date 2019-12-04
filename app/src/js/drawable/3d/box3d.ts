@@ -37,6 +37,10 @@ export class Box3D extends Label3D {
     sensors?: number[],
     temporary?: boolean
   ): void {
+    if (!sensors || sensors.length === 0) {
+      sensors = [-1]
+    }
+
     this._label = makeLabel({
       type: LabelTypeName.BOX_3D, id: -1, item: itemIndex,
       category: [category], sensors
@@ -44,7 +48,7 @@ export class Box3D extends Label3D {
     this._labelId = -1
 
     if (center) {
-      this._shape.center = center
+      this._shape.position.copy(center.toThree())
     }
 
     if (temporary) {
@@ -65,7 +69,7 @@ export class Box3D extends Label3D {
     return [
       [this._label.shapes[0]],
       [ShapeTypeName.CUBE],
-      [this._shape.toObject()]
+      [this._shape.toState()]
     ]
   }
 
@@ -137,8 +141,9 @@ export class Box3D extends Label3D {
   /** Handle mouse move */
   public onMouseMove (x: number, y: number, camera: THREE.Camera) {
     const success = this._shape.drag(x, y, camera)
-    if (this._temporary && success) {
+    if (success) {
       this._temporary = false
+      this._labelList.addUpdatedLabel(this)
     }
     this._labelList.addUpdatedLabel(this)
     return success

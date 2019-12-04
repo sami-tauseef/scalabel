@@ -67,8 +67,15 @@ export class Plane3D extends Label3D {
    */
   public onMouseDown (x: number, y: number, camera: THREE.Camera) {
     if (this._label && this.selected) {
-      this._temporaryLabel = new Box3D()
-      this._temporaryLabel.init(this._label.item, 0, undefined, undefined, true)
+      this._temporaryLabel = new Box3D(this._labelList)
+
+      this._temporaryLabel.init(
+        this._label.item,
+        0,
+        undefined,
+        this._label.sensors,
+        true
+      )
       this.addChild(this._temporaryLabel)
       for (const shape of this._temporaryLabel.shapes()) {
         this._shape.attach(shape)
@@ -85,6 +92,7 @@ export class Plane3D extends Label3D {
   public onMouseUp () {
     if (this._temporaryLabel) {
       this._temporaryLabel.onMouseUp()
+      this._temporaryLabel = null
     }
   }
 
@@ -141,19 +149,21 @@ export class Plane3D extends Label3D {
     activeCamera?: THREE.Camera
   ): void {
     super.updateState(state, itemIndex, labelId)
-    const label = state.task.items[itemIndex].labels[labelId]
-    this._shape.updateState(
-      state.task.items[itemIndex].shapes[label.shapes[0]].shape,
-      label.shapes[0],
-      activeCamera
-    )
 
-    const currentChildren = [...this._children]
-    for (const child of currentChildren) {
-      if (!label.children.includes(child.labelId)) {
-        this.removeChild(child)
-        for (const shape of child.shapes()) {
-          this._shape.remove(shape)
+    if (this._label) {
+      this._shape.updateState(
+        state.task.items[itemIndex].shapes[this._label.shapes[0]].shape,
+        this._label.shapes[0],
+        activeCamera
+      )
+
+      const currentChildren = [...this._children]
+      for (const child of currentChildren) {
+        if (!this._label.children.includes(child.labelId)) {
+          this.removeChild(child)
+          for (const shape of child.shapes()) {
+            this._shape.remove(shape)
+          }
         }
       }
     }
@@ -166,11 +176,12 @@ export class Plane3D extends Label3D {
   public init (
     itemIndex: number,
     category: number,
-    center?: Vector3D
+    center?: Vector3D,
+    sensors?: number[]
   ): void {
     this._label = makeLabel({
       type: LabelTypeName.PLANE_3D, id: -1, item: itemIndex,
-      category: [category]
+      category: [category], sensors
     })
     this._labelId = -1
     if (center) {
@@ -193,7 +204,7 @@ export class Plane3D extends Label3D {
     return [
       [this._label.shapes[0]],
       [ShapeTypeName.GRID],
-      [this._shape.toObject()]
+      [this._shape.toState()]
     ]
   }
 }

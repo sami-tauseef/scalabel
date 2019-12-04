@@ -78,9 +78,9 @@ function interpolateCubes (
       updatedIndices.push(i)
       updatedShapeIds.push([label.shapes[0]])
       updatedShapes.push([{
-        center: newCenter.toObject(),
-        orientation: newOrientation.toObject(),
-        size: newSize.toObject()
+        center: newCenter.toState(),
+        orientation: newOrientation.toState(),
+        size: newSize.toState()
       }])
     }
   }
@@ -220,16 +220,12 @@ export class LinearInterpolationBox3DPolicy extends TrackPolicy {
    */
   public onLabelCreated (
     itemIndex: number,
-    label: Readonly<Label>,
-    sensors: number[]
+    label: Readonly<Label>
   ) {
     label = label as Box3D
-    const cube = label.shapes()[0].toObject()
-    const labelObject = makeLabel({
-      type: types.LabelTypeName.BOX_3D,
-      category: label.category,
-      sensors
-    })
+    const cube = label.shapes()[0].toState()
+    const labelObject = makeLabel(label.label)
+    console.log(labelObject)
 
     if (Session.tracking) {
       Session.dispatch(addDuplicatedTrack(

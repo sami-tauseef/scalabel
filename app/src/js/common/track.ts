@@ -105,11 +105,10 @@ export class Track {
    */
   public onLabelCreated (
     itemIndex: number,
-    label: Readonly<Label>,
-    sensors: number[]
+    label: Readonly<Label>
   ) {
     if (this._policy) {
-      this._policy.onLabelCreated(itemIndex, label, sensors)
+      this._policy.onLabelCreated(itemIndex, label)
     }
   }
 }

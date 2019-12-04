@@ -32,7 +32,7 @@ test('box3d linear interpolation tracking', () => {
   newTrack.updateState(
     makeTrack(-1), makeTrackPolicy(newTrack, currentPolicyType)
   )
-  newTrack.onLabelCreated(0, box, [-1])
+  newTrack.onLabelCreated(0, box)
 
   state = Session.getState()
 
@@ -72,7 +72,7 @@ test('box3d linear interpolation tracking', () => {
   expect(lastLabel).not.toBeUndefined()
 
   if (firstLabel && lastLabel) {
-    const newProps: CubeType = box.shapes()[0].toObject() as CubeType
+    const newProps: CubeType = box.shapes()[0].toState() as CubeType
     newProps.center = { x: 5, y: 5, z: 5 }
     Session.dispatch(action.changeLabelShape(
       firstLabel.item,
@@ -98,7 +98,7 @@ test('box3d linear interpolation tracking', () => {
       if (item.index > 0) {
         const label = labels[Number(keys[0])]
         const shape = item.shapes[label.shapes[0]].shape as CubeType
-        expectVector3TypesClose(shape.center, newProps.center)
+        expectVector3TypesClose(shape.center, (new Vector3D()).toState())
         expect(label.manual).toEqual(false)
       }
     }
@@ -170,7 +170,7 @@ test('box2d linear interpolation tracking', () => {
   box.onMouseMove(new Vector2D(5, 5), new Size2D(50, 50), 0, 0)
   box.onMouseUp(new Vector2D(5, 5))
 
-  newTrack.onLabelCreated(itemIndex, box, [-1])
+  newTrack.onLabelCreated(itemIndex, box)
 
   state = Session.getState()
 

@@ -53,8 +53,7 @@ export abstract class TrackPolicy {
    */
   public abstract onLabelCreated (
     itemIndex: number,
-    label: Readonly<Label>,
-    sensors: number[]
+    label: Readonly<Label>
   ): void
 
   /**

@@ -62,11 +62,11 @@ export class Grid3D extends Shape3D {
   /**
    * Object representation
    */
-  public toObject (): ShapeType {
+  public toState (): ShapeType {
     return{
-      center: (new Vector3D()).fromThree(this.position).toObject(),
+      center: (new Vector3D()).fromThree(this.position).toState(),
       orientation:
-        (new Vector3D()).fromThree(this.rotation.toVector3()).toObject()
+        (new Vector3D()).fromThree(this.rotation.toVector3()).toState()
     }
   }
 
@@ -118,6 +118,10 @@ export class Grid3D extends Shape3D {
       }
     } else {
       this._lines.raycast(raycaster, intersects)
+    }
+
+    for (const child of this.children) {
+      child.raycast(raycaster, intersects)
     }
   }
 

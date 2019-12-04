@@ -79,9 +79,9 @@ function interpolatePlanes (
       updatedIndices.push(i)
       updatedShapeIds.push([label.shapes[0]])
       updatedShapes.push([{
-        center: newCenter.toObject(),
-        orientation: newOrientation.toObject()
-        // size: newSize.toObject()
+        center: newCenter.toState(),
+        orientation: newOrientation.toState()
+        // size: newSize.toState()
       }])
     }
   }
@@ -207,16 +207,16 @@ export class LinearInterpolationPlane3DPolicy extends TrackPolicy {
    */
   public onLabelCreated (
     itemIndex: number,
+<<<<<<< HEAD
     label: Readonly<Label>,
     sensors: number[]
+=======
+    label: Readonly<Label>
+>>>>>>> Drawing labels on plane now adds labels to state. Parent/child relationships maintained correctly. Need to fix forcing box3d to be on plane
   ) {
     label = label as Plane3D
-    const plane = label.shapes()[0].toObject()
-    const labelObject = makeLabel({
-      type: types.LabelTypeName.PLANE_3D,
-      category: label.category,
-      sensors
-    })
+    const plane = label.shapes()[0].toState()
+    const labelObject = makeLabel(label.label)
 
     if (Session.tracking) {
       Session.dispatch(addDuplicatedTrack(

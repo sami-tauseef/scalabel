@@ -49,7 +49,7 @@ export abstract class Shape3D extends THREE.Object3D {
   }
 
   /** Convert shape to state representation */
-  public abstract toObject (): ShapeType
+  public abstract toState (): ShapeType
 
   /** function for setting highlight status */
   public abstract setHighlighted (intersection?: THREE.Intersection): void

@@ -33,7 +33,7 @@ export function moveCamera (
 ): types.ChangeViewerConfigAction {
   const config = {
     ...viewerConfig,
-    position: newPosition.toObject()
+    position: newPosition.toState()
   }
   return {
     type: types.CHANGE_VIEWER_CONFIG,
@@ -56,8 +56,8 @@ export function moveCameraAndTarget (
 ): types.ChangeViewerConfigAction {
   const config = {
     ...viewerConfig,
-    position: newPosition.toObject(),
-    target: newTarget.toObject()
+    position: newPosition.toState(),
+    target: newTarget.toState()
   }
   return {
     type: types.CHANGE_VIEWER_CONFIG,

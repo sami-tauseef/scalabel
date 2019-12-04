@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import * as THREE from 'three'
 import { LabelTypeName, ShapeTypeName } from '../../common/types'
 import { LabelType, ShapeType, State } from '../../functional/types'
@@ -47,6 +48,8 @@ export abstract class Label3D {
   protected _children: Label3D[]
   /** Whether this is temporary */
   protected _temporary: boolean
+  /** label list this belongs to */
+  protected _labelList: Label3DList
 
   constructor (labelList: Label3DList) {
     this._index = -1
@@ -61,6 +64,7 @@ export abstract class Label3D {
     this._parent = null
     this._children = []
     this._temporary = false
+    this._labelList = labelList
   }
 
   /**
@@ -256,7 +260,7 @@ export abstract class Label3D {
     labelId: number
   ): void {
     const item = state.task.items[itemIndex]
-    this._label = item.labels[labelId]
+    this._label = _.cloneDeep(item.labels[labelId])
     this._labelId = this._label.id
     this._trackId = this._label.track
     this._color = getColorById(this._labelId, this._trackId)

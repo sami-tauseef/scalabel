@@ -30,12 +30,6 @@ export class Cube3D extends Shape3D {
   private _color: number[]
   /** Anchor corner index */
   private _anchorIndex: number
-  /** Redux state */
-  private _center: Vector3D
-  /** Redux state */
-  private _size: Vector3D
-  /** Redux state */
-  private _orientation: Vector3D
   /** Normal of the closest face */
   private _closestFaceNormal: THREE.Vector3
   /** Control points */
@@ -74,10 +68,6 @@ export class Cube3D extends Shape3D {
 
     this._anchorIndex = 0
 
-    this._center = new Vector3D()
-    this._size = new Vector3D()
-    this._orientation = new Vector3D()
-
     this._closestFaceNormal = new THREE.Vector3()
     this._controlSpheres = []
     for (let i = 0; i < 4; i += 1) {
@@ -109,54 +99,6 @@ export class Cube3D extends Shape3D {
   }
 
   /**
-   * Set size
-   * @param size
-   */
-  public set size (size: Vector3D) {
-    this.scale.copy(size.toThree())
-    this._size.copy(size)
-  }
-
-  /**
-   * Get size
-   */
-  public get size (): Vector3D {
-    return (new Vector3D()).fromThree(this.scale)
-  }
-
-  /**
-   * Set center position
-   * @param center
-   */
-  public set center (center: Vector3D) {
-    this.position.copy(center.toThree())
-    this._center.copy(center)
-  }
-
-  /**
-   * Get center position
-   */
-  public get center (): Vector3D {
-    return (new Vector3D()).fromThree(this.position)
-  }
-
-  /**
-   * Set orientation as euler
-   * @param orientation
-   */
-  public set orientation (orientation: Vector3D) {
-    this.rotation.setFromVector3(orientation.toThree())
-    this._orientation.copy(orientation)
-  }
-
-  /**
-   * Get orientation as euler
-   */
-  public get orientation (): Vector3D {
-    return (new Vector3D()).fromThree(this.rotation.toVector3())
-  }
-
-  /**
    * Set color
    * @param color
    */
@@ -175,11 +117,23 @@ export class Cube3D extends Shape3D {
   /**
    * Convert to state representation
    */
-  public toObject (): ShapeType {
+  public toState (): ShapeType {
+    if (this._grid) {
+      this.position.z = 0.5
+    }
+    const worldCenter = new THREE.Vector3()
+    this.getWorldPosition(worldCenter)
+    const worldSize = new THREE.Vector3()
+    this.getWorldScale(worldSize)
+    const worldQuaternion = new THREE.Quaternion()
+    this.getWorldQuaternion(worldQuaternion)
+    const worldOrientation = new THREE.Euler()
+    worldOrientation.setFromQuaternion(worldQuaternion)
     return {
-      center: this.center.toObject(),
-      size: this.size.toObject(),
-      orientation: this.orientation.toObject(),
+      center: (new Vector3D()).fromThree(worldCenter).toState(),
+      size: (new Vector3D()).fromThree(worldSize).toState(),
+      orientation:
+        (new Vector3D()).fromThree(worldOrientation.toVector3()).toState(),
       anchorIndex: this._anchorIndex
     }
   }
@@ -217,9 +171,14 @@ export class Cube3D extends Shape3D {
     }
     super.updateState(shape, id)
     const cube = shape as CubeType
-    this.center = (new Vector3D()).fromObject(cube.center)
-    this.orientation = (new Vector3D()).fromObject(cube.orientation)
-    this.size = (new Vector3D()).fromObject(cube.size)
+    this.position.copy((new Vector3D()).fromObject(cube.center).toThree())
+    this.rotation.copy(
+      (new Vector3D()).fromObject(cube.orientation).toThreeEuler()
+    )
+    this.scale.copy((new Vector3D()).fromObject(cube.size).toThree())
+    if (activeCamera) {
+      this.setControlSpheres(activeCamera)
+    }
   }
 
   /**

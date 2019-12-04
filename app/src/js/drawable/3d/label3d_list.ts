@@ -164,6 +164,7 @@ export class Label3DList {
     }
     this._selectedLabel = null
 
+    // Reset control & scene
     for (const key of Object.keys(this._labels)) {
       const id = Number(key)
       if (!(id in item.labels)) {
@@ -174,6 +175,8 @@ export class Label3DList {
         }
       }
     }
+
+    // Update & create labels
     for (const key of Object.keys(item.labels)) {
       const id = Number(key)
       if (id in this._labels) {
@@ -203,6 +206,14 @@ export class Label3DList {
       }
     }
 
+    // Assign parents
+    for (const key of Object.keys(newLabels)) {
+      const id = Number(key)
+      if (item.labels[id].parent in newLabels) {
+        newLabels[item.labels[id].parent].addChild(newLabels[id])
+      }
+    }
+
     this._raycastableShapes = newRaycastableShapes
     this._labels = newLabels
     this._raycastMap = newRaycastMap
@@ -217,6 +228,21 @@ export class Label3DList {
         this._selectedLabel.attachControl(this.control)
       }
     }
+  }
+
+  /** Get uncommitted labels */
+  public get updatedLabels (): Readonly<Set<Readonly<Label3D>>> {
+    return this._updatedLabels
+  }
+
+  /** Push updated label to array */
+  public addUpdatedLabel (label: Label3D) {
+    this._updatedLabels.add(label)
+  }
+
+  /** Clear uncommitted label list */
+  public clearLabels () {
+    this._updatedLabels.clear()
   }
 
   /**

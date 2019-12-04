@@ -141,11 +141,13 @@ function addLabelsToItem (
         makeIndexedShape(shapeIds[i], [labelId], shapeTypes[index][i], s)
       )
     const order = taskStatus.maxOrder + 1 + index
+    const validChildren = label.children.filter((id) => id >= 0)
     label = updateObject(label, {
       id: labelId,
       item: item.index,
       order,
-      shapes: label.shapes.concat(shapeIds)
+      shapes: label.shapes.concat(shapeIds),
+      children: validChildren
     })
     newLabels[index] = label
     newLabelIds.push(labelId)
@@ -396,6 +398,10 @@ function changeLabelsInItem (
   ): ItemType {
   const newLabels: {[key: number]: LabelType} = {}
   labelIds.forEach((labelId, index) => {
+    const children = props[index].children
+    if (children) {
+      props[index].children = children.filter((id) => id >= 0)
+    }
     const oldLabel = item.labels[labelId]
     // avoid changing the shape field in the label
     newLabels[labelId] = updateObject(

@@ -59,7 +59,6 @@ export class Label3DHandler {
     this._viewerConfig =
       getCurrentViewerConfig(state, viewerId)
     this._sensorIds = Object.keys(state.task.sensors).map((key) => Number(key))
-
     if (this._viewerConfig.sensor in state.task.sensors) {
       this._sensor = state.task.sensors[this._viewerConfig.sensor]
     }
@@ -301,7 +300,11 @@ export class Label3DHandler {
             makeTrack(-1),
             makeTrackPolicy(newTrack, Session.label3dList.currentPolicyType)
           )
+<<<<<<< HEAD
           newTrack.onLabelCreated(this._selectedItemIndex, drawable, [-1])
+=======
+          newTrack.onLabelCreated(this._selectedItemIndex, drawable)
+>>>>>>> Drawing labels on plane now adds labels to state. Parent/child relationships maintained correctly. Need to fix forcing box3d to be on plane
         } else {
           Session.dispatch(addLabel(
             this._selectedItemIndex,
@@ -326,6 +329,10 @@ export class Label3DHandler {
         }
       }
     })
+<<<<<<< HEAD
     Session.label3dList.clearUpdatedLabels()
+=======
+    Session.label3dList.clearLabels()
+>>>>>>> Drawing labels on plane now adds labels to state. Parent/child relationships maintained correctly. Need to fix forcing box3d to be on plane
   }
 }
