@@ -120,6 +120,9 @@ export class Cube3D extends Shape3D {
   public toState (): ShapeType {
     if (this._grid) {
       this.position.z = 0.5 * this.scale.z
+      this.rotation.x = 0
+      this.rotation.y = 0
+      this.quaternion.setFromEuler(this.rotation)
     }
     const worldCenter = new THREE.Vector3()
     this.getWorldPosition(worldCenter)

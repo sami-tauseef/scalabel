@@ -61,6 +61,14 @@ export class Plane3D extends Label3D {
     this._shape.setHighlighted(intersection)
   }
 
+  /** add child */
+  public addChild (child: Label3D) {
+    super.addChild(child)
+    for (const shape of child.shapes()) {
+      this._shape.attach(shape)
+    }
+  }
+
   /**
    * Handle mouse move
    * @param projection
@@ -77,9 +85,6 @@ export class Plane3D extends Label3D {
         true
       )
       this.addChild(this._temporaryLabel)
-      for (const shape of this._temporaryLabel.shapes()) {
-        this._shape.attach(shape)
-      }
       return this._temporaryLabel.onMouseDown(x, y, camera)
     }
     return false
@@ -164,6 +169,11 @@ export class Plane3D extends Label3D {
           for (const shape of child.shapes()) {
             this._shape.remove(shape)
           }
+        }
+      }
+      for (const child of this._children) {
+        for (const shape of child.shapes()) {
+          this._shape.attach(shape)
         }
       }
     }
