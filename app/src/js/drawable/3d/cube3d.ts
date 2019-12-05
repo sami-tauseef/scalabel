@@ -119,7 +119,7 @@ export class Cube3D extends Shape3D {
    */
   public toState (): ShapeType {
     if (this._grid) {
-      this.position.z = 0.5
+      this.position.z = 0.5 * this.scale.z
     }
     const worldCenter = new THREE.Vector3()
     this.getWorldPosition(worldCenter)
