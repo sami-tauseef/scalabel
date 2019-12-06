@@ -225,7 +225,6 @@ export class LinearInterpolationBox3DPolicy extends TrackPolicy {
     label = label as Box3D
     const cube = label.shapes()[0].toState()
     const labelObject = makeLabel(label.label)
-    console.log(labelObject)
 
     if (Session.tracking) {
       Session.dispatch(addDuplicatedTrack(

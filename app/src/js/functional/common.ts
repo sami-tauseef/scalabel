@@ -674,9 +674,9 @@ function deleteLabelsFromItem (
       updatedShapes[shape.id] = shape
     })
   })
-  // remove widow labels
+  // remove widow labels if label type is empty
   _.forEach(updatedLabels, (label) => {
-    if (label.children.length === 0) {
+    if (label.type === LabelTypeName.EMPTY && label.children.length === 0) {
       deletedLabels[label.id] = label
     }
   })
