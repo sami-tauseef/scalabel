@@ -362,10 +362,17 @@ export class Label3dCanvas extends DrawableCanvas<Props> {
    * @param {string} componentType
    */
   private initializeRefs (component: HTMLCanvasElement | null) {
-    const sensor =
-      this.state.user.viewerConfigs[this.props.id].sensor
+    const viewerConfig = this.state.user.viewerConfigs[this.props.id]
+    const sensor = viewerConfig.sensor
     if (!component || !isCurrentFrameLoaded(this.state, sensor)) {
       return
+    }
+
+    if (viewerConfig.type === ViewerConfigTypeName.IMAGE_3D ||
+        viewerConfig.type === ViewerConfigTypeName.HOMOGRAPHY) {
+      this.data2d = true
+    } else {
+      this.data2d = false
     }
 
     if (component.nodeName === 'CANVAS') {
@@ -380,9 +387,6 @@ export class Label3dCanvas extends DrawableCanvas<Props> {
         this.forceUpdate()
       }
 
-      const viewerConfig = getCurrentViewerConfig(
-        this.state, this.props.id
-      )
       if (this.canvas && this.display && this.data2d) {
         const img3dConfig = viewerConfig as Image3DViewerConfigType
         if (img3dConfig.viewScale >= MIN_SCALE &&
