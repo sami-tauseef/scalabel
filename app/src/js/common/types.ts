@@ -51,6 +51,7 @@ export enum ViewerConfigTypeName {
   IMAGE = 'image',
   POINT_CLOUD = 'pointcloud',
   IMAGE_3D = 'image_3d',
+  HOMOGRAPHY = 'homography',
   UNKNOWN = 'unknown'
 }
 

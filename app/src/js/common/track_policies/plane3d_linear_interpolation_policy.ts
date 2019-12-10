@@ -207,12 +207,7 @@ export class LinearInterpolationPlane3DPolicy extends TrackPolicy {
    */
   public onLabelCreated (
     itemIndex: number,
-<<<<<<< HEAD
-    label: Readonly<Label>,
-    sensors: number[]
-=======
     label: Readonly<Label>
->>>>>>> Drawing labels on plane now adds labels to state. Parent/child relationships maintained correctly. Need to fix forcing box3d to be on plane
   ) {
     label = label as Plane3D
     const plane = label.shapes()[0].toState()

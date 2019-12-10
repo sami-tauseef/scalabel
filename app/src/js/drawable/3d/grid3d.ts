@@ -30,9 +30,21 @@ export class Grid3D extends Shape3D {
     return ShapeTypeName.GRID
   }
 
+  /** Get center */
+  public get center (): Vector3D {
+    return (new Vector3D()).fromThree(this.position)
+  }
+
   /** Set center */
   public set center (center: Vector3D) {
     this.position.copy(center.toThree())
+  }
+
+  /** Get normal */
+  public get normal (): Vector3D {
+    const normal = new THREE.Vector3()
+    this._lines.getWorldDirection(normal)
+    return (new Vector3D()).fromThree(normal)
   }
 
   /** For setting whether this is selected */

@@ -165,6 +165,11 @@ export interface Image3DViewerConfigType extends
   pointCloudSensor: number
 }
 
+export interface HomographyViewerConfigType extends Image3DViewerConfigType {
+  /** Distance to plane */
+  distance: number
+}
+
 export interface CameraIntrinsicsType {
   /** focal length 2d */
   focalLength: Vector2Type
