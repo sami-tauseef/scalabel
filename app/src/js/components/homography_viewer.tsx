@@ -5,7 +5,7 @@ import { LabelTypeName } from '../common/types'
 import { Grid3D } from '../drawable/3d/grid3d'
 import { Plane3D } from '../drawable/3d/plane3d'
 import { isCurrentFrameLoaded, isFrameLoaded } from '../functional/state_util'
-import { State } from '../functional/types'
+import { HomographyViewerConfigType, State } from '../functional/types'
 import { imageViewStyle } from '../styles/label'
 import { clearCanvas, drawImageOnCanvas } from '../view_config/image'
 import { ImageViewer, Props } from './image_viewer'
@@ -77,7 +77,9 @@ class HomographyViewer extends ImageViewer {
     }
 
     if (this._plane && this.props.id in this.state.user.viewerConfigs) {
-      const sensorId = this.state.user.viewerConfigs[this.props.id].sensor
+      const viewerConfig = this.state.user.viewerConfigs[this.props.id] as
+        HomographyViewerConfigType
+      const sensorId = viewerConfig.sensor
       const item = state.user.select.item
       if (isFrameLoaded(state, item, sensorId)) {
         if (this._image !== Session.images[item][sensorId]) {
@@ -101,10 +103,10 @@ class HomographyViewer extends ImageViewer {
 
           // Set intrinsics
           const intrinsics = sensor.intrinsics
-          const fx = intrinsics.focalLength.x / this._image.width
-          const cx = intrinsics.focalCenter.x / this._image.width
-          const fy = intrinsics.focalLength.y / this._image.height
-          const cy = intrinsics.focalCenter.y / this._image.height
+          const fx = intrinsics.focalLength.x
+          const cx = intrinsics.focalCenter.x
+          const fy = intrinsics.focalLength.y
+          const cy = intrinsics.focalCenter.y
           this._intrinsicProjection.set(
             fx, 0, cx,
             0, fy, cy,
@@ -113,20 +115,26 @@ class HomographyViewer extends ImageViewer {
           this._intrinsicInverse.getInverse(this._intrinsicProjection)
 
           // Extrinsics
+          const extrinsicTranslation = new THREE.Vector3(
+            sensor.extrinsics.translation.x,
+            sensor.extrinsics.translation.y,
+            sensor.extrinsics.translation.z
+          )
           const extrinsicQuaternion = new THREE.Quaternion(
             sensor.extrinsics.rotation.x,
             sensor.extrinsics.rotation.y,
             sensor.extrinsics.rotation.z,
             sensor.extrinsics.rotation.w
           )
-
-          const cameraDirection = new THREE.Vector3(0, 0, 1)
-          cameraDirection.applyQuaternion(extrinsicQuaternion)
-          console.log(cameraDirection)
+          const extrinsicQuaternionInverse = extrinsicQuaternion.inverse()
 
           const grid = this._plane.shapes()[0] as Grid3D
           const planeDirection = new THREE.Vector3()
           planeDirection.copy(grid.normal.toThree())
+          planeDirection.multiplyScalar(-1)
+          planeDirection.applyQuaternion(extrinsicQuaternionInverse)
+
+          const cameraDirection = new THREE.Vector3(0, 0, 1)
 
           const cameraToNormalQuaternion = new THREE.Quaternion()
           cameraToNormalQuaternion.setFromUnitVectors(
@@ -141,43 +149,37 @@ class HomographyViewer extends ImageViewer {
           const rotationToNormal = new THREE.Matrix3()
           rotationToNormal.setFromMatrix4(rotationToNormalMaker)
 
+          planeDirection.copy(grid.normal.toThree())
+          planeDirection.applyQuaternion(extrinsicQuaternionInverse)
+          console.log(planeDirection)
+
+          const gridCenter = grid.center.toThree()
           const newPosition = new THREE.Vector3()
           newPosition.copy(planeDirection)
-          newPosition.multiplyScalar(5)
-          newPosition.add(grid.center.toThree())
-          const cameraPosition = new THREE.Vector3(
-            sensor.extrinsics.translation.x,
-            sensor.extrinsics.translation.y,
-            sensor.extrinsics.translation.z
-          )
+          newPosition.multiplyScalar(viewerConfig.distance)
+          newPosition.add(gridCenter)
+          newPosition.sub(extrinsicTranslation)
+          newPosition.applyQuaternion(extrinsicQuaternionInverse)
+          console.log(newPosition)
 
-          const positionDiff = new THREE.Vector3()
-          positionDiff.copy(newPosition)
-          positionDiff.sub(cameraPosition)
+          const distance = Math.abs(gridCenter.dot(planeDirection))
 
-          const distance = Math.abs(positionDiff.dot(planeDirection))
-
-          const translationToBirdsEye = new THREE.Vector3()
-          translationToBirdsEye.copy(cameraPosition)
-          translationToBirdsEye.applyMatrix3(rotationToNormal)
-          translationToBirdsEye.sub(newPosition)
-
-          const rotationNormalization = new THREE.Matrix3()
-          rotationNormalization.set(
-            translationToBirdsEye.x * planeDirection.x / distance,
-            translationToBirdsEye.x * planeDirection.y / distance,
-            translationToBirdsEye.x * planeDirection.z / distance,
-            translationToBirdsEye.y * planeDirection.x / distance,
-            translationToBirdsEye.y * planeDirection.y / distance,
-            translationToBirdsEye.y * planeDirection.z / distance,
-            translationToBirdsEye.z * planeDirection.x / distance,
-            translationToBirdsEye.z * planeDirection.y / distance,
-            translationToBirdsEye.z * planeDirection.z / distance
+          const translationFactor = new THREE.Matrix3()
+          translationFactor.set(
+            newPosition.x * planeDirection.x / distance,
+            newPosition.x * planeDirection.y / distance,
+            newPosition.x * planeDirection.z / distance,
+            newPosition.y * planeDirection.x / distance,
+            newPosition.y * planeDirection.y / distance,
+            newPosition.y * planeDirection.z / distance,
+            newPosition.z * planeDirection.x / distance,
+            newPosition.z * planeDirection.y / distance,
+            newPosition.z * planeDirection.z / distance
           )
 
           for (let i = 0; i < 9; i++) {
             this._homographyMatrix.elements[i] =
-              rotationToNormal.elements[i] - rotationNormalization.elements[i]
+              rotationToNormal.elements[i] // - translationFactor.elements[i]
           }
         }
       }
@@ -190,8 +192,6 @@ class HomographyViewer extends ImageViewer {
   private drawHomography () {
     if (this.imageCanvas && this.imageContext && this._hiddenContext) {
       if (this._plane && this._image) {
-        const homographyInverse = new THREE.Matrix3()
-        homographyInverse.getInverse(this._homographyMatrix)
         const imageData = this.imageContext.createImageData(
           this.imageCanvas.width, this.imageCanvas.height
         )
@@ -200,7 +200,7 @@ class HomographyViewer extends ImageViewer {
             // Get source coordinates
             const src = new THREE.Vector3(dstX, dstY, 1)
             src.applyMatrix3(this._intrinsicInverse)
-            src.applyMatrix3(homographyInverse)
+            src.applyMatrix3(this._homographyMatrix)
             src.applyMatrix3(this._intrinsicProjection)
             src.multiplyScalar(1. / src.z)
 
@@ -209,9 +209,18 @@ class HomographyViewer extends ImageViewer {
             const srcY =
               dstY / this.imageCanvas.height * this._hiddenCanvas.height
 
-            const data =
-              this._hiddenContext.getImageData(srcX, srcY, 1, 1).data
-            imageData.data.set(data, (dstY * this.imageCanvas.width + dstX) * 4)
+            if (
+                srcX >= 0 &&
+                srcY >= 0 &&
+                srcX < this._hiddenCanvas.width &&
+                srcY < this._hiddenCanvas.height
+              ) {
+              const data =
+                this._hiddenContext.getImageData(srcX, srcY, 1, 1).data
+              imageData.data.set(
+                data, (dstY * this.imageCanvas.width + dstX) * 4
+              )
+            }
           }
         }
 
