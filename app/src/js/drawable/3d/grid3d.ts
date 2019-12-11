@@ -18,7 +18,7 @@ export class Grid3D extends Shape3D {
   constructor (label: Label3D) {
     super(label)
     this._lines = new THREE.GridHelper(1, 6, 0xffffff, 0xffffff)
-    this._lines.rotation.x = Math.PI / 2
+    this._lines.rotation.x = -Math.PI / 2
     this.add(this._lines)
     this._selected = false
     this.scale.x = 6
@@ -42,8 +42,8 @@ export class Grid3D extends Shape3D {
 
   /** Get normal */
   public get normal (): Vector3D {
-    const normal = new THREE.Vector3()
-    this._lines.getWorldDirection(normal)
+    const normal = new THREE.Vector3(0, 0, 1)
+    this.getWorldDirection(normal)
     return (new Vector3D()).fromThree(normal)
   }
 

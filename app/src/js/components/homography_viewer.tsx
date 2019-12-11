@@ -122,6 +122,7 @@ class HomographyViewer extends ImageViewer {
 
           const cameraDirection = new THREE.Vector3(0, 0, 1)
           cameraDirection.applyQuaternion(extrinsicQuaternion)
+          console.log(cameraDirection)
 
           const grid = this._plane.shapes()[0] as Grid3D
           const planeDirection = new THREE.Vector3()
@@ -140,12 +141,21 @@ class HomographyViewer extends ImageViewer {
           const rotationToNormal = new THREE.Matrix3()
           rotationToNormal.setFromMatrix4(rotationToNormalMaker)
 
-          const newPosition = grid.center.toThree()
+          const newPosition = new THREE.Vector3()
+          newPosition.copy(planeDirection)
+          newPosition.multiplyScalar(5)
+          newPosition.add(grid.center.toThree())
           const cameraPosition = new THREE.Vector3(
             sensor.extrinsics.translation.x,
             sensor.extrinsics.translation.y,
             sensor.extrinsics.translation.z
           )
+
+          const positionDiff = new THREE.Vector3()
+          positionDiff.copy(newPosition)
+          positionDiff.sub(cameraPosition)
+
+          const distance = Math.abs(positionDiff.dot(planeDirection))
 
           const translationToBirdsEye = new THREE.Vector3()
           translationToBirdsEye.copy(cameraPosition)
@@ -154,15 +164,15 @@ class HomographyViewer extends ImageViewer {
 
           const rotationNormalization = new THREE.Matrix3()
           rotationNormalization.set(
-            translationToBirdsEye.x * planeDirection.x,
-            translationToBirdsEye.x * planeDirection.y,
-            translationToBirdsEye.x * planeDirection.z,
-            translationToBirdsEye.y * planeDirection.x,
-            translationToBirdsEye.y * planeDirection.y,
-            translationToBirdsEye.y * planeDirection.z,
-            translationToBirdsEye.z * planeDirection.x,
-            translationToBirdsEye.z * planeDirection.y,
-            translationToBirdsEye.z * planeDirection.z
+            translationToBirdsEye.x * planeDirection.x / distance,
+            translationToBirdsEye.x * planeDirection.y / distance,
+            translationToBirdsEye.x * planeDirection.z / distance,
+            translationToBirdsEye.y * planeDirection.x / distance,
+            translationToBirdsEye.y * planeDirection.y / distance,
+            translationToBirdsEye.y * planeDirection.z / distance,
+            translationToBirdsEye.z * planeDirection.x / distance,
+            translationToBirdsEye.z * planeDirection.y / distance,
+            translationToBirdsEye.z * planeDirection.z / distance
           )
 
           for (let i = 0; i < 9; i++) {
