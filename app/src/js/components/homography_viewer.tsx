@@ -133,12 +133,13 @@ class HomographyViewer extends ImageViewer {
           planeDirection.copy(grid.normal.toThree())
           planeDirection.multiplyScalar(-1)
           planeDirection.applyQuaternion(extrinsicQuaternionInverse)
+          console.log(planeDirection)
 
           const cameraDirection = new THREE.Vector3(0, 0, 1)
 
           const cameraToNormalQuaternion = new THREE.Quaternion()
           cameraToNormalQuaternion.setFromUnitVectors(
-            cameraDirection, planeDirection
+            planeDirection, cameraDirection
           )
 
           const rotationToNormalMaker = new THREE.Matrix4()
@@ -151,18 +152,19 @@ class HomographyViewer extends ImageViewer {
 
           planeDirection.copy(grid.normal.toThree())
           planeDirection.applyQuaternion(extrinsicQuaternionInverse)
-          console.log(planeDirection)
 
           const gridCenter = grid.center.toThree()
-          const newPosition = new THREE.Vector3()
-          newPosition.copy(planeDirection)
-          newPosition.multiplyScalar(viewerConfig.distance)
-          newPosition.add(gridCenter)
-          newPosition.sub(extrinsicTranslation)
-          newPosition.applyQuaternion(extrinsicQuaternionInverse)
-          console.log(newPosition)
+          gridCenter.sub(extrinsicTranslation)
+          gridCenter.applyQuaternion(extrinsicQuaternionInverse)
 
           const distance = Math.abs(gridCenter.dot(planeDirection))
+
+          const newPosition = new THREE.Vector3()
+          newPosition.copy(planeDirection)
+          newPosition.multiplyScalar(distance)
+          newPosition.add(gridCenter)
+          console.log(newPosition)
+          newPosition.multiplyScalar(-1)
 
           const translationFactor = new THREE.Matrix3()
           translationFactor.set(
@@ -179,7 +181,7 @@ class HomographyViewer extends ImageViewer {
 
           for (let i = 0; i < 9; i++) {
             this._homographyMatrix.elements[i] =
-              rotationToNormal.elements[i] // - translationFactor.elements[i]
+              rotationToNormal.elements[i] - translationFactor.elements[i]
           }
         }
       }
@@ -195,19 +197,21 @@ class HomographyViewer extends ImageViewer {
         const imageData = this.imageContext.createImageData(
           this.imageCanvas.width, this.imageCanvas.height
         )
+        const homographyInverse = new THREE.Matrix3()
+        homographyInverse.getInverse(this._homographyMatrix)
         for (let dstX = 0; dstX < this.imageCanvas.width; dstX++) {
           for (let dstY = 0; dstY < this.imageCanvas.height; dstY++) {
             // Get source coordinates
             const src = new THREE.Vector3(dstX, dstY, 1)
             src.applyMatrix3(this._intrinsicInverse)
-            src.applyMatrix3(this._homographyMatrix)
+            src.applyMatrix3(homographyInverse)
             src.applyMatrix3(this._intrinsicProjection)
             src.multiplyScalar(1. / src.z)
 
             const srcX =
               src.x / this.imageCanvas.width * this._hiddenCanvas.width
             const srcY =
-              dstY / this.imageCanvas.height * this._hiddenCanvas.height
+              src.y / this.imageCanvas.height * this._hiddenCanvas.height
 
             if (
                 srcX >= 0 &&
