@@ -8,7 +8,7 @@ import {
 
 import Session from '../common/session'
 import * as types from '../common/types'
-import { ImageViewerConfigType, PointCloudViewerConfigType, State, ViewerConfigType } from '../functional/types'
+import { HomographyViewerConfigType, ImageViewerConfigType, PointCloudViewerConfigType, State, ViewerConfigType } from '../functional/types'
 import { Vector3D } from '../math/vector3d'
 import { SCROLL_ZOOM_RATIO } from './image'
 
@@ -303,6 +303,17 @@ export default class ViewerConfigUpdater {
         )
         if (pointCloudZoomAction) {
           Session.dispatch(pointCloudZoomAction)
+        }
+        break
+      case types.ViewerConfigTypeName.HOMOGRAPHY:
+        {
+          const config = this._viewerConfig as HomographyViewerConfigType
+          const newDistance = config.distance + 10 * Math.sign(dY)
+          const newConfig = { ...config, distance: newDistance }
+          Session.dispatch(changeViewerConfig(
+            this._viewerId,
+            newConfig
+          ))
         }
         break
     }

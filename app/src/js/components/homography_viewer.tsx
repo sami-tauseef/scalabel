@@ -133,7 +133,7 @@ class HomographyViewer extends ImageViewer {
           planeDirection.copy(grid.normal.toThree())
           planeDirection.multiplyScalar(-1)
           planeDirection.applyQuaternion(extrinsicQuaternionInverse)
-          console.log(planeDirection)
+          planeDirection.normalize()
 
           const cameraDirection = new THREE.Vector3(0, 0, 1)
 
@@ -161,9 +161,8 @@ class HomographyViewer extends ImageViewer {
 
           const newPosition = new THREE.Vector3()
           newPosition.copy(planeDirection)
-          newPosition.multiplyScalar(distance)
+          newPosition.multiplyScalar(viewerConfig.distance)
           newPosition.add(gridCenter)
-          console.log(newPosition)
           newPosition.multiplyScalar(-1)
 
           const translationFactor = new THREE.Matrix3()
