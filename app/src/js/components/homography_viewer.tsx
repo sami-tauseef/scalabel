@@ -163,7 +163,9 @@ class HomographyViewer extends ImageViewer {
           newPosition.copy(planeDirection)
           newPosition.multiplyScalar(viewerConfig.distance)
           newPosition.add(gridCenter)
+          newPosition.applyQuaternion(cameraToNormalQuaternion)
           newPosition.multiplyScalar(-1)
+          console.log(gridCenter, planeDirection, newPosition)
 
           const translationFactor = new THREE.Matrix3()
           translationFactor.set(
@@ -193,8 +195,11 @@ class HomographyViewer extends ImageViewer {
   private drawHomography () {
     if (this.imageCanvas && this.imageContext && this._hiddenContext) {
       if (this._plane && this._image) {
-        const imageData = this.imageContext.createImageData(
+        const homographyData = this.imageContext.createImageData(
           this.imageCanvas.width, this.imageCanvas.height
+        )
+        const imageData = this._hiddenContext.getImageData(
+          0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height
         )
         const homographyInverse = new THREE.Matrix3()
         homographyInverse.getInverse(this._homographyMatrix)
@@ -207,10 +212,12 @@ class HomographyViewer extends ImageViewer {
             src.applyMatrix3(this._intrinsicProjection)
             src.multiplyScalar(1. / src.z)
 
-            const srcX =
+            const srcX = Math.floor(
               src.x / this.imageCanvas.width * this._hiddenCanvas.width
-            const srcY =
+            )
+            const srcY = Math.floor(
               src.y / this.imageCanvas.height * this._hiddenCanvas.height
+            )
 
             if (
                 srcX >= 0 &&
@@ -218,16 +225,17 @@ class HomographyViewer extends ImageViewer {
                 srcX < this._hiddenCanvas.width &&
                 srcY < this._hiddenCanvas.height
               ) {
-              const data =
-                this._hiddenContext.getImageData(srcX, srcY, 1, 1).data
-              imageData.data.set(
-                data, (dstY * this.imageCanvas.width + dstX) * 4
-              )
+              const imageStart = (srcY * this._hiddenCanvas.width + srcX) * 4
+              const homographyStart = (dstY * this.imageCanvas.width + dstX) * 4
+              for (let i = 0; i < 4; i++) {
+                homographyData.data[homographyStart + i] =
+                  imageData.data[imageStart + i]
+              }
             }
           }
         }
 
-        this.imageContext.putImageData(imageData, 0, 0)
+        this.imageContext.putImageData(homographyData, 0, 0)
         console.log('birds eye drawn')
       } else {
         clearCanvas(this.imageCanvas, this.imageContext)

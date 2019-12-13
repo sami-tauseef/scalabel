@@ -308,7 +308,11 @@ export default class ViewerConfigUpdater {
       case types.ViewerConfigTypeName.HOMOGRAPHY:
         {
           const config = this._viewerConfig as HomographyViewerConfigType
-          const newDistance = config.distance + 10 * Math.sign(dY)
+          let zoomRatio = SCROLL_ZOOM_RATIO
+          if (dY < 0) {
+            zoomRatio = 1. / zoomRatio
+          }
+          const newDistance = config.distance * zoomRatio
           const newConfig = { ...config, distance: newDistance }
           Session.dispatch(changeViewerConfig(
             this._viewerId,
