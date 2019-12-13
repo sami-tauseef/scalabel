@@ -28,6 +28,8 @@ class HomographyViewer extends ImageViewer {
   private _hiddenCanvas: HTMLCanvasElement
   /** context of image canvas */
   private _hiddenContext: CanvasRenderingContext2D | null
+  /** image data */
+  private _imageData: Uint8ClampedArray | null
 
   constructor (props: Props) {
     super(props)
@@ -37,6 +39,7 @@ class HomographyViewer extends ImageViewer {
     this._homographyMatrix = new THREE.Matrix3()
     this._hiddenCanvas = document.createElement('canvas')
     this._hiddenContext = null
+    this._imageData = null
   }
 
   /**
@@ -91,6 +94,9 @@ class HomographyViewer extends ImageViewer {
           }
           if (this._hiddenContext) {
             this._hiddenContext.drawImage(this._image, 0, 0)
+            this._imageData = this._hiddenContext.getImageData(
+              0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height
+            ).data
           }
         }
       }
@@ -193,13 +199,10 @@ class HomographyViewer extends ImageViewer {
    * Draw image with birds eye view homography
    */
   private drawHomography () {
-    if (this.imageCanvas && this.imageContext && this._hiddenContext) {
+    if (this.imageCanvas && this.imageContext && this._imageData) {
       if (this._plane && this._image) {
         const homographyData = this.imageContext.createImageData(
           this.imageCanvas.width, this.imageCanvas.height
-        )
-        const imageData = this._hiddenContext.getImageData(
-          0, 0, this._hiddenCanvas.width, this._hiddenCanvas.height
         )
         const homographyInverse = new THREE.Matrix3()
         homographyInverse.getInverse(this._homographyMatrix)
@@ -229,7 +232,7 @@ class HomographyViewer extends ImageViewer {
               const homographyStart = (dstY * this.imageCanvas.width + dstX) * 4
               for (let i = 0; i < 4; i++) {
                 homographyData.data[homographyStart + i] =
-                  imageData.data[imageStart + i]
+                  this._imageData[imageStart + i]
               }
             }
           }
