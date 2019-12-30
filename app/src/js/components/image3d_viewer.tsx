@@ -1,14 +1,16 @@
+import * as React from 'react'
 import { withStyles } from '@material-ui/styles'
-import React from 'react'
 import { ImageViewerConfigType } from '../functional/types'
 import { viewerStyles } from '../styles/viewer'
-import { DrawableViewer, ViewerProps } from './drawable_viewer'
-import HomographyCanvas from './homography_canvas'
+import { ViewerProps } from './drawable_viewer'
+import ImageCanvas from './image_canvas'
+import Label3dCanvas from './label3d_canvas'
+import { Viewer2D } from './viewer2d'
 
 /**
- * Viewer for images and 2d labels
+ * Viewer for 3d labels on images
  */
-class HomographyViewer extends DrawableViewer {
+class Image3DViewer extends Viewer2D {
   /**
    * Constructor
    * @param {Object} props: react props
@@ -32,8 +34,15 @@ class HomographyViewer extends DrawableViewer {
     const views: React.ReactElement[] = []
     if (this._viewerConfig) {
       views.push(
-        <HomographyCanvas
-          key={`homographyCanvas${this.props.id}`}
+        <ImageCanvas
+          key={`imageCanvas${this.props.id}`}
+          display={this._container}
+          id={this.props.id}
+        />
+      )
+      views.push(
+        <Label3dCanvas
+          key={`label3dCanvas${this.props.id}`}
           display={this._container}
           id={this.props.id}
         />
@@ -42,30 +51,6 @@ class HomographyViewer extends DrawableViewer {
 
     return views
   }
-
-  /**
-   * Handle double click
-   * @param e
-   */
-  protected onDoubleClick () {
-    return
-  }
-
-  /**
-   * Handle mouse leave
-   * @param e
-   */
-  protected onMouseLeave () {
-    return
-  }
-
-  /**
-   * Handle mouse wheel
-   * @param e
-   */
-  protected onWheel (e: React.WheelEvent) {
-    e.preventDefault()
-  }
 }
 
-export default withStyles(viewerStyles)(HomographyViewer)
+export default withStyles(viewerStyles)(Image3DViewer)

@@ -314,7 +314,7 @@ test('polygon linear interpolation tracking', () => {
     makeTrack(-1), makeTrackPolicy(newTrack, currentPolicyType)
   )
 
-  newTrack.onLabelCreated(itemIndex, polygon, [-1])
+  newTrack.onLabelCreated(itemIndex, polygon)
 
   state = Session.getState()
 

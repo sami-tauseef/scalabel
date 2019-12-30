@@ -150,7 +150,7 @@ export class Label2DHandler {
               makeTrackPolicy(newTrack, Session.label2dList.policyType)
             )
             newTrack.onLabelCreated(
-              this._selectedItemIndex, selectedLabel, [-1]
+              this._selectedItemIndex, selectedLabel
             )
           } else {
             const label = selectedLabel.label
