@@ -63,7 +63,7 @@ class HomographyViewer extends DrawableViewer {
    * Handle mouse wheel
    * @param e
    */
-  protected onWheel (e: React.WheelEvent) {
+  protected onWheel (e: WheelEvent) {
     e.preventDefault()
   }
 }
