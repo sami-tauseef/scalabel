@@ -291,7 +291,6 @@ export class Label3dCanvas extends DrawableCanvas<Props> {
   protected updateState (state: State): void {
     if (this.display !== this.props.display) {
       this.display = this.props.display
-      console.log('force update')
       this.forceUpdate()
     }
 

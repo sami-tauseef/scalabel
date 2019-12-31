@@ -10,6 +10,37 @@ import { imageViewStyle } from '../styles/label'
 import { clearCanvas, drawImageOnCanvas } from '../view_config/image'
 import { ImageCanvas, Props } from './image_canvas'
 
+/** Get basis matrix for use with homography */
+function getBasisMatrix (homogeneousPoints: THREE.Vector3[]) {
+  const homogeneousMatrix = new THREE.Matrix3()
+
+  for (let i = 0; i < 3; i++) {
+    const offset = i * 3
+    homogeneousMatrix.elements[offset] = homogeneousPoints[i].x
+    homogeneousMatrix.elements[offset + 1] = homogeneousPoints[i].y
+    homogeneousMatrix.elements[offset + 2] = 1
+  }
+
+  const homogeneousInverse = new THREE.Matrix3()
+  homogeneousInverse.getInverse(homogeneousMatrix)
+
+  const target = new THREE.Vector3()
+  target.copy(homogeneousPoints[3])
+  target.applyMatrix3(homogeneousInverse)
+  const scalars = target.toArray()
+
+  const basis = new THREE.Matrix3()
+  basis.copy(homogeneousMatrix)
+
+  for (let i = 0; i < 9; i += 3) {
+    for (let j = 0; j < 3; j++) {
+      basis.elements[i + j] *= scalars[i / 3]
+    }
+  }
+
+  return basis
+}
+
 /**
  * Component for displaying birds eye view homography
  */
@@ -106,13 +137,15 @@ class HomographyCanvas extends ImageCanvas {
         if (sensor.intrinsics &&
             sensor.extrinsics &&
             isCurrentFrameLoaded(state, sensorId)) {
+          const image =
+            Session.images[item][sensorId]
 
           // Set intrinsics
           const intrinsics = sensor.intrinsics
-          const fx = intrinsics.focalLength.x
-          const cx = intrinsics.focalCenter.x
-          const fy = intrinsics.focalLength.y
-          const cy = intrinsics.focalCenter.y
+          const fx = intrinsics.focalLength.x / image.width
+          const cx = intrinsics.focalCenter.x / image.width
+          const fy = intrinsics.focalLength.y / image.height
+          const cy = intrinsics.focalCenter.y / image.height
           this._intrinsicProjection.set(
             fx, 0, cx,
             0, fy, cy,
@@ -135,60 +168,34 @@ class HomographyCanvas extends ImageCanvas {
           const extrinsicQuaternionInverse = extrinsicQuaternion.inverse()
 
           const grid = this._plane.shapes()[0] as Grid3D
-          const planeDirection = new THREE.Vector3()
-          planeDirection.copy(grid.normal.toThree())
-          planeDirection.multiplyScalar(-1)
-          planeDirection.applyQuaternion(extrinsicQuaternionInverse)
-          planeDirection.normalize()
 
-          const cameraDirection = new THREE.Vector3(0, 0, 1)
-
-          const cameraToNormalQuaternion = new THREE.Quaternion()
-          cameraToNormalQuaternion.setFromUnitVectors(
-            planeDirection, cameraDirection
-          )
-
-          const rotationToNormalMaker = new THREE.Matrix4()
-          rotationToNormalMaker.makeRotationFromQuaternion(
-            cameraToNormalQuaternion
-          )
-
-          const rotationToNormal = new THREE.Matrix3()
-          rotationToNormal.setFromMatrix4(rotationToNormalMaker)
-
-          planeDirection.copy(grid.normal.toThree())
-          planeDirection.applyQuaternion(extrinsicQuaternionInverse)
-
-          const gridCenter = grid.center.toThree()
-          gridCenter.sub(extrinsicTranslation)
-          gridCenter.applyQuaternion(extrinsicQuaternionInverse)
-
-          const distance = Math.abs(gridCenter.dot(planeDirection))
-
-          const newPosition = new THREE.Vector3()
-          newPosition.copy(planeDirection)
-          newPosition.multiplyScalar(viewerConfig.distance)
-          newPosition.add(gridCenter)
-          newPosition.applyQuaternion(cameraToNormalQuaternion)
-          newPosition.multiplyScalar(-1)
-
-          const translationFactor = new THREE.Matrix3()
-          translationFactor.set(
-            newPosition.x * planeDirection.x / distance,
-            newPosition.x * planeDirection.y / distance,
-            newPosition.x * planeDirection.z / distance,
-            newPosition.y * planeDirection.x / distance,
-            newPosition.y * planeDirection.y / distance,
-            newPosition.y * planeDirection.z / distance,
-            newPosition.z * planeDirection.x / distance,
-            newPosition.z * planeDirection.y / distance,
-            newPosition.z * planeDirection.z / distance
-          )
-
-          for (let i = 0; i < 9; i++) {
-            this._homographyMatrix.elements[i] =
-              rotationToNormal.elements[i] - translationFactor.elements[i]
+          const sourcePoints = []
+          for (let y = 0.5; y >= -0.5; y--) {
+            for (let x = 0.5; x >= -0.5; x--) {
+              const point = new THREE.Vector3(y, x, 0)
+              point.applyMatrix4(grid.matrixWorld)
+              point.sub(extrinsicTranslation)
+              point.applyQuaternion(extrinsicQuaternionInverse)
+              point.applyMatrix3(this._intrinsicProjection)
+              point.multiplyScalar(1.0 / point.z)
+              sourcePoints.push(point)
+            }
           }
+          const sourceBasis = getBasisMatrix(sourcePoints)
+          const sourceBasisInverse = new THREE.Matrix3()
+          sourceBasisInverse.getInverse(sourceBasis)
+
+          const destinationPoints = [
+            new THREE.Vector3(0, 0, 1),
+            new THREE.Vector3(1, 0, 1),
+            new THREE.Vector3(0, 1, 1),
+            new THREE.Vector3(1, 1, 1)
+          ]
+          const destinationBasis = getBasisMatrix(destinationPoints)
+
+          this._homographyMatrix.multiplyMatrices(
+            destinationBasis, sourceBasisInverse
+          )
         }
       }
     }
@@ -208,17 +215,19 @@ class HomographyCanvas extends ImageCanvas {
         for (let dstX = 0; dstX < this.imageCanvas.width; dstX++) {
           for (let dstY = 0; dstY < this.imageCanvas.height; dstY++) {
             // Get source coordinates
-            const src = new THREE.Vector3(dstX, dstY, 1)
-            src.applyMatrix3(this._intrinsicInverse)
+            const src = new THREE.Vector3(
+              dstX / this.imageCanvas.width, dstY / this.imageCanvas.height, 1
+            )
+            // src.applyMatrix3(this._intrinsicInverse)
             src.applyMatrix3(homographyInverse)
-            src.applyMatrix3(this._intrinsicProjection)
+            // src.applyMatrix3(this._intrinsicProjection)
             src.multiplyScalar(1. / src.z)
 
             const srcX = Math.floor(
-              src.x / this.imageCanvas.width * this._hiddenCanvas.width
+              src.x * this._hiddenCanvas.width
             )
             const srcY = Math.floor(
-              src.y / this.imageCanvas.height * this._hiddenCanvas.height
+              src.y * this._hiddenCanvas.height
             )
 
             if (
@@ -238,7 +247,6 @@ class HomographyCanvas extends ImageCanvas {
         }
 
         this.imageContext.putImageData(homographyData, 0, 0)
-        console.log((new Error()).stack)
       } else {
         clearCanvas(this.imageCanvas, this.imageContext)
       }
