@@ -228,7 +228,7 @@ export function makeImage3DViewerConfig (
  * @param sensor
  */
 export function makeHomographyViewerConfig (
-  pane: number, sensor: number = -1, distance: number = 1
+  pane: number, sensor: number = -1, distance: number = 10
 ): HomographyViewerConfigType {
   const imageConfig = makeImageViewerConfig(pane, sensor)
   return {

@@ -114,6 +114,7 @@ export abstract class DrawableViewer<T extends ViewerProps>
             }
             this._container = element
             this._container.addEventListener('wheel', this._wheelHandler)
+            console.log('force update')
             this.forceUpdate()
           }
         }}

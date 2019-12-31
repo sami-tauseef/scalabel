@@ -22,7 +22,7 @@ class HomographyCanvas extends ImageCanvas {
   private _intrinsicProjection: THREE.Matrix3
   /** inverse of intrinsic */
   private _intrinsicInverse: THREE.Matrix3
-  /** homography matrix, actually includes both homography and intrinsic */
+  /** homography matrix */
   private _homographyMatrix: THREE.Matrix3
   /** canvas for drawing image & getting colors */
   private _hiddenCanvas: HTMLCanvasElement
@@ -238,7 +238,7 @@ class HomographyCanvas extends ImageCanvas {
         }
 
         this.imageContext.putImageData(homographyData, 0, 0)
-        console.log('birds eye drawn')
+        console.log((new Error()).stack)
       } else {
         clearCanvas(this.imageCanvas, this.imageContext)
       }

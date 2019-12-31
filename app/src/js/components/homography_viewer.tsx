@@ -1,7 +1,10 @@
 import { withStyles } from '@material-ui/styles'
 import React from 'react'
-import { ImageViewerConfigType } from '../functional/types'
+import { changeViewerConfig } from '../action/common'
+import Session from '../common/session'
+import { HomographyViewerConfigType, ImageViewerConfigType } from '../functional/types'
 import { viewerStyles } from '../styles/viewer'
+import { SCROLL_ZOOM_RATIO } from '../view_config/image'
 import { DrawableViewer, ViewerProps } from './drawable_viewer'
 import HomographyCanvas from './homography_canvas'
 
@@ -65,6 +68,17 @@ class HomographyViewer extends DrawableViewer {
    */
   protected onWheel (e: WheelEvent) {
     e.preventDefault()
+    const config = this._viewerConfig as HomographyViewerConfigType
+    let zoomRatio = SCROLL_ZOOM_RATIO
+    if (e.deltaY < 0) {
+      zoomRatio = 1. / zoomRatio
+    }
+    const newDistance = config.distance * zoomRatio
+    const newConfig = { ...config, distance: newDistance }
+    Session.dispatch(changeViewerConfig(
+      this._viewerId,
+      newConfig
+    ))
   }
 }
 

@@ -134,6 +134,9 @@ class LabelPane extends Component<Props> {
           <MenuItem value={types.ViewerConfigTypeName.IMAGE_3D}>
             Image 3D
           </MenuItem>
+          <MenuItem value={types.ViewerConfigTypeName.HOMOGRAPHY}>
+            Homography
+          </MenuItem>
         </Select>
       )
 
