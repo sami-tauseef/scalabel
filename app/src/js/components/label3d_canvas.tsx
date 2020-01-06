@@ -308,27 +308,6 @@ export class Label3dCanvas extends DrawableCanvas<Props> {
     //     }
     //   }
     // }
-
-    // if (this.props.id in this.state.user.viewerConfigs) {
-    //   if (viewerConfig.type === ViewerConfigTypeName.IMAGE_3D) {
-    //     if (viewerConfig.sensor in this.state.task.sensors) {
-    //       const sensor = this.state.task.sensors[sensorId]
-    //       if (sensor.intrinsics &&
-    //           isCurrentFrameLoaded(state, viewerConfig.sensor)) {
-    //         const image =
-    //           Session.images[state.user.select.item][viewerConfig.sensor]
-    //         this.camera = new IntrinsicCamera(
-    //           sensor.intrinsics,
-    //           image.width,
-    //           image.height
-    //         )
-    //       }
-    //     }
-    //   } else {
-    //     this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000)
-    //   }
-    //   this._labelHandler.camera = this.camera
-    // }
     this._labelHandler.updateState(state, state.user.select.item, this.props.id)
   }
 
