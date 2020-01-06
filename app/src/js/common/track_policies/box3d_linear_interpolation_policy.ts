@@ -30,30 +30,30 @@ function interpolateCubes (
   updatedShapeIds: number[][],
   updatedShapes: Array<Array<Partial<CubeType>>>
 ) {
-  const firstCenter = (new Vector3D()).fromObject(firstCube.center)
+  const firstCenter = (new Vector3D()).fromState(firstCube.center)
   const firstOrientation =
-      (new Vector3D()).fromObject(firstCube.orientation)
-  const firstSize = (new Vector3D()).fromObject(firstCube.size)
+      (new Vector3D()).fromState(firstCube.orientation)
+  const firstSize = (new Vector3D()).fromState(firstCube.size)
 
-  const lastCenter = (new Vector3D()).fromObject(lastCube.center)
+  const lastCenter = (new Vector3D()).fromState(lastCube.center)
   const lastOrientation =
-      (new Vector3D()).fromObject(lastCube.orientation)
-  const lastSize = (new Vector3D()).fromObject(lastCube.size)
+      (new Vector3D()).fromState(lastCube.orientation)
+  const lastSize = (new Vector3D()).fromState(lastCube.size)
 
   const numItems = lastItemIndex - firstItemIndex
 
   const positionDelta = new Vector3D()
-  positionDelta.fromObject(lastCenter)
+  positionDelta.fromState(lastCenter)
   positionDelta.subtract(firstCenter)
   positionDelta.scale(1. / numItems)
 
   const rotationDelta = new Vector3D()
-  rotationDelta.fromObject(lastOrientation)
+  rotationDelta.fromState(lastOrientation)
   rotationDelta.subtract(firstOrientation)
   rotationDelta.scale(1. / numItems)
 
   const scaleDelta = new Vector3D()
-  scaleDelta.fromObject(lastSize)
+  scaleDelta.fromState(lastSize)
   scaleDelta.subtract(firstSize)
   scaleDelta.scale(1. / numItems)
 
@@ -63,17 +63,17 @@ function interpolateCubes (
       const labelId = labels[i]
       const label = items[i].labels[labelId]
 
-      const newCenter = (new Vector3D()).fromObject(positionDelta)
+      const newCenter = (new Vector3D()).fromState(positionDelta)
       newCenter.multiplyScalar(indexDelta)
-      newCenter.add((new Vector3D()).fromObject(firstCenter))
+      newCenter.add((new Vector3D()).fromState(firstCenter))
 
-      const newOrientation = (new Vector3D()).fromObject(rotationDelta)
+      const newOrientation = (new Vector3D()).fromState(rotationDelta)
       newOrientation.multiplyScalar(indexDelta)
-      newOrientation.add((new Vector3D().fromObject(firstOrientation)))
+      newOrientation.add((new Vector3D().fromState(firstOrientation)))
 
-      const newSize = (new Vector3D()).fromObject(scaleDelta)
+      const newSize = (new Vector3D()).fromState(scaleDelta)
       newSize.multiplyScalar(indexDelta)
-      newSize.add((new Vector3D().fromObject(firstSize)))
+      newSize.add((new Vector3D().fromState(firstSize)))
 
       updatedIndices.push(i)
       updatedShapeIds.push([label.shapes[0]])
@@ -171,9 +171,9 @@ function linearInterpolateBox3D (
         updatedIndices.push(i)
         updatedShapeIds.push([label.shapes[0]])
         updatedShapes.push([{
-          center: (new Vector3D()).fromObject(newCube.center),
-          orientation: (new Vector3D()).fromObject(newCube.orientation),
-          size: (new Vector3D()).fromObject(newCube.size)
+          center: (new Vector3D()).fromState(newCube.center),
+          orientation: (new Vector3D()).fromState(newCube.orientation),
+          size: (new Vector3D()).fromState(newCube.size)
         }])
       }
     }

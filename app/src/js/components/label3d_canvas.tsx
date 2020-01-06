@@ -5,7 +5,7 @@ import * as THREE from 'three'
 import Session from '../common/session'
 import { ViewerConfigTypeName } from '../common/types'
 import { Label3DHandler } from '../drawable/3d/label3d_handler'
-import { getCurrentViewerConfig, isCurrentFrameLoaded } from '../functional/state_util'
+import { isCurrentFrameLoaded } from '../functional/state_util'
 import { Image3DViewerConfigType, State } from '../functional/types'
 import { MAX_SCALE, MIN_SCALE, updateCanvasScale } from '../view_config/image'
 import { convertMouseToNDC } from '../view_config/point_cloud'
@@ -424,54 +424,6 @@ export class Label3dCanvas extends DrawableCanvas<Props> {
         this.canvas.height
       )
     }
-    //   const config = getCurrentViewerConfig(
-    //     this.state, this.props.id
-    //   )
-    //   if (config) {
-    //     switch (config.type) {
-    //       case ViewerConfigTypeName.POINT_CLOUD:
-    //         updateThreeCameraAndRenderer(
-    //           config as PointCloudViewerConfigType,
-    //           this.camera,
-    //           this.canvas,
-    //           this.renderer
-    //         )
-    //         break
-    //       case ViewerConfigTypeName.IMAGE_3D:
-    //         const img3dConfig = config as Image3DViewerConfigType
-    //         const sensor = img3dConfig.sensor
-    //         if (sensor in this.state.task.sensors) {
-    //           const extrinsics = this.state.task.sensors[sensor].extrinsics
-    //           this.camera.position.set(0, 0, 0)
-    //           if (extrinsics) {
-    //             this.camera.quaternion.set(
-    //               extrinsics.rotation.x,
-    //               extrinsics.rotation.y,
-    //               extrinsics.rotation.z,
-    //               extrinsics.rotation.w
-    //             )
-    //             this.camera.quaternion.multiply(
-    //               (new THREE.Quaternion()).setFromAxisAngle(
-    //                 new THREE.Vector3(1, 0, 0), Math.PI
-    //               )
-    //             )
-    //             this.camera.position.set(
-    //               extrinsics.translation.x,
-    //               extrinsics.translation.y,
-    //               extrinsics.translation.z
-    //             )
-    //           }
-    //           if (this.canvas && this.renderer) {
-    //             this.renderer.setSize(
-    //               this.canvas.width,
-    //               this.canvas.height
-    //             )
-    //           }
-    //         }
-    //         break
-    //     }
-    //   }
-    // }
   }
 }
 

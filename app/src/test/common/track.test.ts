@@ -136,8 +136,8 @@ test('box3d linear interpolation tracking', () => {
       const nextShape =
         nextItem.shapes[nextLabel.shapes[0]].shape as CubeType
 
-      const currentCenter = (new Vector3D()).fromObject(currentShape.center)
-      const nextCenter = (new Vector3D()).fromObject(nextShape.center)
+      const currentCenter = (new Vector3D()).fromState(currentShape.center)
+      const nextCenter = (new Vector3D()).fromState(nextShape.center)
       const newDelta = currentCenter.subtract(nextCenter)
       if (currentDelta) {
         expectVector3TypesClose(currentDelta, newDelta)

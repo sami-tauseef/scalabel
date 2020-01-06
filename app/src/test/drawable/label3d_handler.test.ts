@@ -116,7 +116,7 @@ test('Add 3d bbox', () => {
   // make sure that the bounding box is always created at the target
   const maxVal = 100
   const position = new Vector3D()
-  position.fromObject(viewerConfig.position)
+  position.fromState(viewerConfig.position)
   const target = new Vector3D()
   for (let i = 1; i <= 10; i += 1) {
     target[0] = Math.random() * 2 - 1
@@ -209,7 +209,7 @@ test('Move axis aligned 3d bbox along z axis', () => {
 
   state = Session.getState()
   let cube = getShape(state, 0, 0, 0) as CubeType
-  const center = (new Vector3D()).fromObject(cube.center)
+  const center = (new Vector3D()).fromState(cube.center)
   expect(center[2]).toBeGreaterThan(0)
   expect(center[0]).toBeCloseTo(0)
   expect(center[1]).toBeCloseTo(0)
@@ -302,7 +302,7 @@ test('Move axis aligned 3d bbox along all axes', () => {
 
       state = Session.getState()
       let cube = getShape(state, 0, 0, 0) as CubeType
-      const center = (new Vector3D()).fromObject(cube.center)
+      const center = (new Vector3D()).fromState(cube.center)
 
       // get ActiveAxis based on view point and vertical or horizontal
       const activeAxis = getActiveAxis(camLoc, axis)
@@ -408,8 +408,8 @@ test('Scale axis aligned 3d bbox along all axes', () => {
       state = Session.getState()
       let cube = getShape(state, 0, 0, 0) as CubeType
 
-      const center = (new Vector3D()).fromObject(cube.center)
-      const size = (new Vector3D()).fromObject(cube.size)
+      const center = (new Vector3D()).fromState(cube.center)
+      const size = (new Vector3D()).fromState(cube.size)
 
       // get ActiveAxis based on view point and vertical or horizontal
       const activeAxis = getActiveAxis(camLoc, axis)
@@ -520,7 +520,7 @@ test('Rotate axis aligned 3d bbox around all axes', () => {
 
       state = Session.getState()
       let cube = getShape(state, 0, 0, 0) as CubeType
-      const orientation = (new Vector3D()).fromObject(cube.orientation)
+      const orientation = (new Vector3D()).fromState(cube.orientation)
 
       // get ActiveAxis based on view point and vertical or horizontal
       const activeAxis = getActiveAxisForRotation(camLoc, axis)

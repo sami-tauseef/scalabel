@@ -164,7 +164,7 @@ export class Label3DHandler {
           const center = new Vector3D()
           switch (this._viewerConfig.type) {
             case ViewerConfigTypeName.POINT_CLOUD:
-              center.fromObject(
+              center.fromState(
                 (this._viewerConfig as PointCloudViewerConfigType).target
               )
               break
@@ -174,7 +174,7 @@ export class Label3DHandler {
                 this._camera.getWorldDirection(worldDirection)
                 worldDirection.normalize()
                 worldDirection.multiplyScalar(5)
-                center.fromObject(this._sensor.extrinsics.translation)
+                center.fromState(this._sensor.extrinsics.translation)
                 center.add((new Vector3D()).fromThree(worldDirection))
               }
           }
@@ -300,11 +300,7 @@ export class Label3DHandler {
             makeTrack(-1),
             makeTrackPolicy(newTrack, Session.label3dList.currentPolicyType)
           )
-<<<<<<< HEAD
-          newTrack.onLabelCreated(this._selectedItemIndex, drawable, [-1])
-=======
           newTrack.onLabelCreated(this._selectedItemIndex, drawable)
->>>>>>> Drawing labels on plane now adds labels to state. Parent/child relationships maintained correctly. Need to fix forcing box3d to be on plane
         } else {
           Session.dispatch(addLabel(
             this._selectedItemIndex,
@@ -329,10 +325,6 @@ export class Label3DHandler {
         }
       }
     })
-<<<<<<< HEAD
     Session.label3dList.clearUpdatedLabels()
-=======
-    Session.label3dList.clearLabels()
->>>>>>> Drawing labels on plane now adds labels to state. Parent/child relationships maintained correctly. Need to fix forcing box3d to be on plane
   }
 }

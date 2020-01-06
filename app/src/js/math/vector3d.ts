@@ -67,7 +67,7 @@ export class Vector3D extends Vector {
   /**
    * Set value from a raw 3d vector
    */
-  public fromObject (v: Vector3Type): this {
+  public fromState (v: Vector3Type): this {
     this[0] = v.x
     this[1] = v.y
     this[2] = v.z

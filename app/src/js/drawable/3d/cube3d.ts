@@ -174,14 +174,11 @@ export class Cube3D extends Shape3D {
     }
     super.updateState(shape, id)
     const cube = shape as CubeType
-    this.position.copy((new Vector3D()).fromObject(cube.center).toThree())
+    this.position.copy((new Vector3D()).fromState(cube.center).toThree())
     this.rotation.copy(
-      (new Vector3D()).fromObject(cube.orientation).toThreeEuler()
+      (new Vector3D()).fromState(cube.orientation).toThreeEuler()
     )
-    this.scale.copy((new Vector3D()).fromObject(cube.size).toThree())
-    if (activeCamera) {
-      this.setControlSpheres(activeCamera)
-    }
+    this.scale.copy((new Vector3D()).fromState(cube.size).toThree())
   }
 
   /**

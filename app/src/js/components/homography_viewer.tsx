@@ -11,7 +11,7 @@ import HomographyCanvas from './homography_canvas'
 /**
  * Viewer for images and 2d labels
  */
-class HomographyViewer extends DrawableViewer {
+class HomographyViewer extends DrawableViewer<ViewerProps> {
   /**
    * Constructor
    * @param {Object} props: react props

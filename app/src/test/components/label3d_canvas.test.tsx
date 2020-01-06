@@ -154,7 +154,7 @@ test('Add 3d bbox', () => {
   // make sure that the bounding box is always created at the target
   const maxVal = 100
   const position = new Vector3D()
-  position.fromObject(canvasConfig.position)
+  position.fromState(canvasConfig.position)
   const target = new Vector3D()
   for (let i = 1; i <= 10; i += 1) {
     target[0] = Math.random() * 2 - 1
@@ -224,7 +224,7 @@ test('Move axis aligned 3d bbox along z axis', () => {
 
   state = Session.getState()
   let cube = getShape(state, 0, 0, 0) as CubeType
-  const center = (new Vector3D()).fromObject(cube.center)
+  const center = (new Vector3D()).fromState(cube.center)
   expect(center[2]).toBeGreaterThan(0)
   expect(center[0]).toBeCloseTo(0)
   expect(center[1]).toBeCloseTo(0)

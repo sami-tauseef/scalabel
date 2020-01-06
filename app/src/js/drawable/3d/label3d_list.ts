@@ -230,21 +230,6 @@ export class Label3DList {
     }
   }
 
-  /** Get uncommitted labels */
-  public get updatedLabels (): Readonly<Set<Readonly<Label3D>>> {
-    return this._updatedLabels
-  }
-
-  /** Push updated label to array */
-  public addUpdatedLabel (label: Label3D) {
-    this._updatedLabels.add(label)
-  }
-
-  /** Clear uncommitted label list */
-  public clearLabels () {
-    this._updatedLabels.clear()
-  }
-
   /**
    * Get raycastable list
    */
