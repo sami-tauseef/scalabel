@@ -3,11 +3,12 @@ import Label3D from '../label3d'
 
 export interface ControlUnit extends THREE.Object3D {
   /** get update vectors: [translation, rotation, scale, new intersection] */
-  getDelta: (
+  transform: (
     oldIntersection: THREE.Vector3,
     newProjection: THREE.Ray,
-    dragPlane: THREE.Plane
-  ) => [THREE.Vector3, THREE.Quaternion, THREE.Vector3, THREE.Vector3]
+    dragPlane: THREE.Plane,
+    labels: Label3D[]
+  ) => THREE.Vector3
   /** set highlight */
   setHighlighted: (intersection ?: THREE.Intersection) => boolean
   /** set faded */
@@ -86,22 +87,12 @@ export abstract class Controller extends THREE.Object3D {
   /** mouse move */
   public onMouseMove (projection: THREE.Ray) {
     if (this._highlightedUnit && this._dragPlane) {
-      const [
-        translationDelta,
-        quaternionDelta,
-        ,// _scaleDelta,
-        newIntersection
-      ] = this._highlightedUnit.getDelta(
+      const newIntersection = this._highlightedUnit.transform(
         this._intersectionPoint,
         projection,
-        this._dragPlane
+        this._dragPlane,
+        this._labels
       )
-
-      for (const label of this._labels) {
-        label.translate(translationDelta)
-        label.rotate(quaternionDelta)
-        // label.scale(scaleDelta, new THREE.Vector3())
-      }
 
       this._intersectionPoint.copy(newIntersection)
       this._projection.copy(projection)

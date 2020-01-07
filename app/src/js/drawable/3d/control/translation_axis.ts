@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import Label3D from '../label3d'
 import { ControlUnit } from './controller'
 
 /**
@@ -73,18 +74,14 @@ export class TranslationAxis extends THREE.Group
    * @param newProjection
    * @param dragPlane
    */
-  public getDelta (
+  public transform (
     oldIntersection: THREE.Vector3,
     newProjection: THREE.Ray,
     dragPlane: THREE.Plane,
-    object?: THREE.Object3D
-  ): [THREE.Vector3, THREE.Quaternion, THREE.Vector3, THREE.Vector3] {
+    labels: Label3D[]
+  ): THREE.Vector3 {
     const direction = new THREE.Vector3()
     direction.copy(this._direction)
-
-    if (object) {
-      direction.applyQuaternion(object.quaternion)
-    }
 
     const worldDirection = new THREE.Vector3()
     worldDirection.copy(this._direction)
@@ -124,12 +121,11 @@ export class TranslationAxis extends THREE.Group
     nextIntersection.copy(oldIntersection)
     nextIntersection.add(intersectionDelta)
 
-    return [
-      positionDelta,
-      new THREE.Quaternion(0, 0, 0, 1),
-      new THREE.Vector3(),
-      nextIntersection
-    ]
+    for (const label of labels) {
+      label.translate(positionDelta)
+    }
+
+    return newIntersection
   }
 
   /**

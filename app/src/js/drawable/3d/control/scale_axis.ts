@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import Label3D from '../label3d'
 import { ControlUnit } from './controller'
 
 /**
@@ -83,19 +84,14 @@ export class ScaleAxis extends THREE.Group implements ControlUnit {
   }
 
   /** get update vectors: [translation, rotation, scale, new intersection] */
-  public getDelta (
+  public transform (
     oldIntersection: THREE.Vector3,
     newProjection: THREE.Ray,
     dragPlane: THREE.Plane,
-    object?: THREE.Object3D
-  ): [THREE.Vector3, THREE.Quaternion, THREE.Vector3, THREE.Vector3] {
+    labels: Label3D[]
+  ): THREE.Vector3 {
     const direction = new THREE.Vector3()
     direction.copy(this._direction)
-
-    // Only works in local frame
-    if (object) {
-      direction.applyQuaternion(object.quaternion)
-    }
 
     const worldDirection = new THREE.Vector3()
     worldDirection.copy(this._direction)
@@ -142,12 +138,11 @@ export class ScaleAxis extends THREE.Group implements ControlUnit {
     positionDelta.copy(direction)
     positionDelta.multiplyScalar(0.5 * projectionLength)
 
-    return [
-      positionDelta,
-      new THREE.Quaternion(0, 0, 0, 1),
-      scaleDelta,
-      nextIntersection
-    ]
+    for (const label of labels) {
+      label.scale(scaleDelta, new THREE.Vector3())
+    }
+
+    return nextIntersection
   }
 
   /**

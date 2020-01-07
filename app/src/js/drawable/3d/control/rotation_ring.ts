@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import Label3D from '../label3d'
 import { ControlUnit } from './controller'
 
 /**
@@ -65,16 +66,18 @@ export class RotationRing extends THREE.Mesh implements ControlUnit {
   }
 
   /**
-   * Get translation delta
+   * Translate input labels
    * @param oldIntersection
    * @param newProjection
    * @param dragPlane
+   * @param labels
    */
-  public getDelta (
+  public transform (
     oldIntersection: THREE.Vector3,
     newProjection: THREE.Ray,
-    dragPlane: THREE.Plane
-  ): [THREE.Vector3, THREE.Quaternion, THREE.Vector3, THREE.Vector3] {
+    dragPlane: THREE.Plane,
+    labels: Label3D[]
+  ): THREE.Vector3 {
     const newIntersection = new THREE.Vector3()
     newProjection.intersectPlane(dragPlane, newIntersection)
 
@@ -106,12 +109,11 @@ export class RotationRing extends THREE.Mesh implements ControlUnit {
     const rotation = new THREE.Quaternion()
     rotation.setFromAxisAngle(normal, dragAmount)
 
-    return [
-      new THREE.Vector3(0, 0, 0),
-      rotation,
-      new THREE.Vector3(),
-      newIntersection
-    ]
+    for (const label of labels) {
+      label.rotate(rotation)
+    }
+
+    return newIntersection
   }
 
   /**
