@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import { ShapeTypeName } from '../../common/types'
 import { Plane3DType, ShapeType } from '../../functional/types'
 import { Vector3D } from '../../math/vector3d'
-import { TransformationControl } from './control/transformation_control'
 import Label3D from './label3d'
 import { Shape3D } from './shape3d'
 
@@ -91,10 +90,6 @@ export class Grid3D extends Shape3D {
     raycaster: THREE.Raycaster,
     intersects: THREE.Intersection[]
   ) {
-    if (this._control) {
-      this._control.raycast(raycaster, intersects)
-    }
-
     if (this._selected) {
       const ray = raycaster.ray
       const normal = new THREE.Vector3(0, 0, 1)
@@ -134,23 +129,6 @@ export class Grid3D extends Shape3D {
 
     for (const child of this.children) {
       child.raycast(raycaster, intersects)
-    }
-  }
-
-  /**
-   * Add/remove controls
-   * @param control
-   * @param show
-   */
-  public setControl (control: TransformationControl, show: boolean) {
-    if (show) {
-      this.add(control)
-      this._control = control
-      this._control.attachShape(this)
-    } else if (this._control) {
-      this._control.detachShape()
-      this.remove(control)
-      this._control = null
     }
   }
 

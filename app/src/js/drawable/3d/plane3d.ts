@@ -3,7 +3,6 @@ import { makeLabel } from '../../functional/states'
 import { ShapeType, State } from '../../functional/types'
 import { Vector3D } from '../../math/vector3d'
 import { Box3D } from './box3d'
-import { TransformationControl } from './control/transformation_control'
 import { Grid3D } from './grid3d'
 import Label3D from './label3d'
 import { Label3DList } from './label3d_list'
@@ -43,15 +42,6 @@ export class Plane3D extends Label3D {
     this._shape.render(scene)
   }
 
-  /** Attach control */
-  public attachControl (control: TransformationControl): void {
-    this._shape.attachControl(control)
-  }
-
-  /** Detach control */
-  public detachControl (): void {
-    this._shape.detachControl()
-  }
   /**
    * Highlight box
    * @param intersection

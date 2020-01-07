@@ -1,12 +1,12 @@
 import * as THREE from 'three'
+import Label3D from '../label3d'
 
 export interface ControlUnit extends THREE.Object3D {
   /** get update vectors: [translation, rotation, scale, new intersection] */
   getDelta: (
     oldIntersection: THREE.Vector3,
     newProjection: THREE.Ray,
-    dragPlane: THREE.Plane,
-    object?: THREE.Object3D
+    dragPlane: THREE.Plane
   ) => [THREE.Vector3, THREE.Quaternion, THREE.Vector3, THREE.Vector3]
   /** set highlight */
   setHighlighted: (intersection ?: THREE.Intersection) => boolean
@@ -24,8 +24,6 @@ export abstract class Controller extends THREE.Object3D {
   protected _controlUnits: ControlUnit[]
   /** current axis being dragged */
   protected _highlightedUnit: ControlUnit | null
-  /** Object to modify */
-  protected _object: THREE.Object3D | null
   /** local or world */
   protected _local: boolean
   /** original intersection point */
@@ -34,17 +32,24 @@ export abstract class Controller extends THREE.Object3D {
   protected _dragPlane: THREE.Plane
   /** previous projection */
   protected _projection: THREE.Ray
+  /** labels to transform */
+  protected _labels: Label3D[]
 
-  constructor () {
+  constructor (labels: Label3D[]) {
     super()
     this._controlUnits = []
-    this._object = null
     this._local = true
     this._intersectionPoint = new THREE.Vector3()
     this._highlightedUnit = null
     this._dragPlane = new THREE.Plane()
     this._projection = new THREE.Ray()
     this.matrixAutoUpdate = false
+    this._labels = labels
+  }
+
+  /** Returns whether this is highlighted */
+  public get highlighted (): boolean {
+    return this._highlightedUnit !== null
   }
 
   /** highlight function */
@@ -66,7 +71,7 @@ export abstract class Controller extends THREE.Object3D {
 
   /** mouse down */
   public onMouseDown (camera: THREE.Camera) {
-    if (this._highlightedUnit && this._object) {
+    if (this._highlightedUnit) {
       const normal = new THREE.Vector3()
       camera.getWorldDirection(normal)
       this._dragPlane.setFromNormalAndCoplanarPoint(
@@ -80,36 +85,28 @@ export abstract class Controller extends THREE.Object3D {
 
   /** mouse move */
   public onMouseMove (projection: THREE.Ray) {
-    if (this._highlightedUnit && this._dragPlane && this._object) {
-      const object = (this._local) ? this._object : undefined
+    if (this._highlightedUnit && this._dragPlane) {
       const [
         translationDelta,
         quaternionDelta,
-        scaleDelta,
+        ,// _scaleDelta,
         newIntersection
       ] = this._highlightedUnit.getDelta(
         this._intersectionPoint,
         projection,
-        this._dragPlane,
-        object
+        this._dragPlane
       )
 
-      const newScale = new THREE.Vector3()
-      newScale.copy(this._object.scale)
-      newScale.add(scaleDelta)
-
-      if (Math.min(newScale.x, newScale.y, newScale.z) > 0.01) {
-        this._object.position.add(translationDelta)
-        this._object.applyQuaternion(quaternionDelta)
-        this._object.scale.add(scaleDelta)
+      for (const label of this._labels) {
+        label.translate(translationDelta)
+        label.rotate(quaternionDelta)
+        // label.scale(scaleDelta, new THREE.Vector3())
       }
 
       this._intersectionPoint.copy(newIntersection)
-      this.refreshDisplayParameters()
       this._projection.copy(projection)
       return true
     }
-    this.refreshDisplayParameters()
     this._projection.copy(projection)
     return false
   }
@@ -128,51 +125,10 @@ export abstract class Controller extends THREE.Object3D {
     }
   }
 
-  /** attach to object */
-  public attachShape (object: THREE.Object3D) {
-    this._object = object
-    this.updateMatrix()
-    this.updateMatrixWorld(true)
-    this.refreshDisplayParameters()
-  }
-
-  /** detach */
-  public detachShape () {
-    this._object = null
-  }
-
   /** Toggle local/world */
   public toggleFrame () {
-    if (this._object) {
+    if (this._labels.length > 0) {
       this._local = !this._local
-      this.attachShape(this._object)
-    }
-  }
-
-  /** Refresh display params */
-  protected refreshDisplayParameters () {
-    if (this._object) {
-      // Isolate child from parent transformations first
-      this._object.updateMatrixWorld(true)
-      this.matrix.getInverse(this._object.matrix)
-
-      this.matrix.setPosition(new THREE.Vector3())
-      if (this._local) {
-        // Move back to _object frame of reference, but do not apply scaling
-
-        this.matrix.multiply(
-          (new THREE.Matrix4()).makeRotationFromQuaternion(
-            this._object.quaternion
-          )
-        )
-      }
-
-      const worldScale = new THREE.Vector3()
-      this._object.getWorldScale(worldScale)
-
-      for (const unit of this._controlUnits) {
-        unit.updateScale(worldScale)
-      }
     }
   }
 }

@@ -73,19 +73,13 @@ export class RotationRing extends THREE.Mesh implements ControlUnit {
   public getDelta (
     oldIntersection: THREE.Vector3,
     newProjection: THREE.Ray,
-    dragPlane: THREE.Plane,
-    object?: THREE.Object3D
+    dragPlane: THREE.Plane
   ): [THREE.Vector3, THREE.Quaternion, THREE.Vector3, THREE.Vector3] {
-
     const newIntersection = new THREE.Vector3()
     newProjection.intersectPlane(dragPlane, newIntersection)
 
     const normal = new THREE.Vector3()
     normal.copy(this._normal)
-
-    if (object) {
-      normal.applyQuaternion(object.quaternion)
-    }
 
     const delta = new THREE.Vector3()
     delta.copy(newIntersection)

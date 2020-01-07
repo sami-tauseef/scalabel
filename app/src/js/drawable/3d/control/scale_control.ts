@@ -1,4 +1,5 @@
 import { BLUE, GREEN, RED } from '../common'
+import Label3D from '../label3d'
 import { Controller } from './controller'
 import { ScaleAxis } from './scale_axis'
 
@@ -6,8 +7,8 @@ import { ScaleAxis } from './scale_axis'
  * perform scaling ops
  */
 export class ScaleControl extends Controller {
-  constructor () {
-    super()
+  constructor (labels: Label3D[]) {
+    super(labels)
     this._controlUnits.push(
       new ScaleAxis(
         'x',

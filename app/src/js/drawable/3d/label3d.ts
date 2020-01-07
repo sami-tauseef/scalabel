@@ -4,7 +4,6 @@ import { LabelTypeName, ShapeTypeName } from '../../common/types'
 import { LabelType, ShapeType, State } from '../../functional/types'
 import { Vector3D } from '../../math/vector3d'
 import { getColorById } from '../util'
-import { TransformationControl } from './control/transformation_control'
 import { Label3DList } from './label3d_list'
 import { Plane3D } from './plane3d'
 import { Shape3D } from './shape3d'
@@ -65,6 +64,11 @@ export abstract class Label3D {
     this._children = []
     this._temporary = false
     this._labelList = labelList
+  }
+
+  /** Get label list */
+  public get labelList (): Readonly<Label3DList> {
+    return this._labelList
   }
 
   /**
@@ -189,12 +193,6 @@ export abstract class Label3D {
     return
   }
 
-  /** Attach control */
-  public abstract attachControl (control: TransformationControl): void
-
-  /** Attach control */
-  public abstract detachControl (): void
-
   /**
    * Handle mouse move
    * @param projection
@@ -236,6 +234,11 @@ export abstract class Label3D {
     return new THREE.Quaternion()
   }
 
+  /** Bounds of label */
+  public get bounds (): THREE.Box3 {
+    return new THREE.Box3()
+  }
+
   /**
    * Initialize label
    * @param {State} state
@@ -264,6 +267,13 @@ export abstract class Label3D {
     this._labelId = this._label.id
     this._trackId = this._label.track
     this._color = getColorById(this._labelId, this._trackId)
+    const select = state.user.select
+    if (this._label.item in select.labels &&
+        select.labels[this._label.item].includes(labelId)) {
+      this.selected = true
+    } else {
+      this.selected = false
+    }
   }
 }
 

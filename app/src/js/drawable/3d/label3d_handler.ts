@@ -77,15 +77,10 @@ export class Label3DHandler {
    * Process mouse down action
    */
   public onMouseDown (x: number, y: number): boolean {
-    if (this._highlightedLabel &&
-        this._highlightedLabel === Session.label3dList.selectedLabel) {
+    if (Session.label3dList.control.highlighted) {
       this._mouseDownOnSelection = true
-      if (Session.label3dList.control.attached()) {
-        const consumed = Session.label3dList.control.onMouseDown(this._camera)
-        if (consumed) {
-          return false
-        }
-      }
+      Session.label3dList.control.onMouseDown(this._camera)
+      return false
     }
 
     if (this._highlightedLabel) {
@@ -109,7 +104,7 @@ export class Label3DHandler {
   public onMouseUp (): boolean {
     this._mouseDownOnSelection = false
     let consumed = false
-    if (Session.label3dList.control.attached()) {
+    if (Session.label3dList.control.visible) {
       consumed = Session.label3dList.control.onMouseUp()
     }
     if (!consumed && Session.label3dList.selectedLabel) {
@@ -131,7 +126,7 @@ export class Label3DHandler {
     raycastIntersection?: THREE.Intersection
   ): boolean {
     if (this._mouseDownOnSelection && Session.label3dList.selectedLabel) {
-      if (Session.label3dList.control.attached()) {
+      if (Session.label3dList.control.visible) {
         const consumed = Session.label3dList.control.onMouseMove(
           x, y, this._camera
         )
@@ -232,7 +227,6 @@ export class Label3DHandler {
   private highlight (intersection?: THREE.Intersection) {
     if (this._highlightedLabel) {
       this._highlightedLabel.setHighlighted()
-      Session.label3dList.control.setHighlighted()
     }
     this._highlightedLabel = null
 
@@ -243,12 +237,9 @@ export class Label3DHandler {
       if (label) {
         label.setHighlighted(intersection)
         this._highlightedLabel = label
-        if (this._highlightedLabel === Session.label3dList.selectedLabel) {
-          Session.label3dList.control.setHighlighted(intersection)
-        }
-        return
       }
     }
+    Session.label3dList.control.setHighlighted(intersection)
   }
 
   /**

@@ -57,6 +57,7 @@ export class Cube3D extends Shape3D {
       })
     )
     this.add(this._box)
+    this._box.geometry.computeBoundingBox()
 
     this._outline = new THREE.LineSegments(
       new THREE.EdgesGeometry(this._box.geometry),
@@ -113,7 +114,6 @@ export class Cube3D extends Shape3D {
     return this._box
   }
 
-  /** Return state representation of shape */
   /**
    * Convert to state representation
    */
@@ -262,21 +262,29 @@ export class Cube3D extends Shape3D {
     intersects: THREE.Intersection[]
   ) {
     const newIntersects: THREE.Intersection[] = []
-    if (this._control) {
-      this._control.raycast(raycaster, newIntersects)
-    }
 
     for (const sphere of this._controlSpheres) {
       sphere.raycast(raycaster, newIntersects)
     }
 
-    if (newIntersects.length === 0) {
-      this._box.raycast(raycaster, intersects)
-    } else {
+    if (newIntersects.length > 0) {
       for (const intersect of newIntersects) {
         intersects.push(intersect)
       }
+      return
     }
+
+    if (this.label.selected) {
+      this.label.labelList.control.raycast(raycaster, newIntersects)
+      if (newIntersects.length > 0) {
+        for (const intersect of newIntersects) {
+          intersects.push(intersect)
+        }
+        return
+      }
+    }
+
+    this._box.raycast(raycaster, intersects)
   }
 
   /**

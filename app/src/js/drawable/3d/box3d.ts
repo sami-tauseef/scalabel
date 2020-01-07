@@ -7,7 +7,6 @@ import { ShapeType, State } from '../../functional/types'
 import { Vector3D } from '../../math/vector3d'
 
 import { LabelTypeName, ShapeTypeName } from '../../common/types'
-import { TransformationControl } from './control/transformation_control'
 import { Cube3D } from './cube3d'
 import { Label3D } from './label3d'
 import { Label3DList } from './label3d_list'
@@ -81,20 +80,6 @@ export class Box3D extends Label3D {
     } else {
       this._shape.detachFromPlane()
     }
-  }
-
-  /**
-   * Attach control
-   */
-  public attachControl (control: TransformationControl) {
-    this._shape.attachControl(control)
-  }
-
-  /**
-   * Attach control
-   */
-  public detachControl () {
-    this._shape.detachControl()
   }
 
   /**
@@ -178,6 +163,14 @@ export class Box3D extends Label3D {
   /** orientation of box */
   public get orientation (): THREE.Quaternion {
     return this._shape.quaternion
+  }
+
+  /** bounds of box */
+  public get bounds (): THREE.Box3 {
+    this._shape.updateMatrixWorld(true)
+    this._shape.box.geometry.computeBoundingBox()
+    this._shape.box.geometry.boundingBox.applyMatrix4(this._shape.matrixWorld)
+    return this._shape.box.geometry.boundingBox
   }
 
   /**
