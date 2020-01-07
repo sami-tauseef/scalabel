@@ -134,9 +134,9 @@ export class TransformationControl extends THREE.Group {
    */
   private switchController (controller: Controller) {
     this.remove(this._currentController)
-
     this._currentController = controller
     this.add(this._currentController)
+    this.updateScale()
   }
 
   /** Update bounds of the transformation control */
@@ -152,6 +152,11 @@ export class TransformationControl extends THREE.Group {
       this.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), 0)
     }
 
+    this.updateScale()
+  }
+
+  /** Update controller scale */
+  private updateScale () {
     const size = new THREE.Vector3()
     this._bounds.getSize(size)
     this._currentController.updateScale(size)
