@@ -135,4 +135,11 @@ export abstract class Controller extends THREE.Object3D {
       this._local = false
     }
   }
+
+  /** Update scales of control units */
+  public updateScale (scale: THREE.Vector3) {
+    for (const unit of this._controlUnits) {
+      unit.updateScale(scale)
+    }
+  }
 }

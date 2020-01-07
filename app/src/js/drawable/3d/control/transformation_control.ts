@@ -151,5 +151,9 @@ export class TransformationControl extends THREE.Group {
     } else {
       this.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), 0)
     }
+
+    const size = new THREE.Vector3()
+    this._bounds.getSize(size)
+    this._currentController.updateScale(size)
   }
 }
