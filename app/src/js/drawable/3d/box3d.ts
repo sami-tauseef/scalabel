@@ -7,6 +7,7 @@ import { ShapeType, State } from '../../functional/types'
 import { Vector3D } from '../../math/vector3d'
 
 import { LabelTypeName, ShapeTypeName } from '../../common/types'
+import { rotateScale } from '../../math/3d'
 import { Cube3D } from './cube3d'
 import { Label3D } from './label3d'
 import { Label3DList } from './label3d_list'
@@ -147,11 +148,32 @@ export class Box3D extends Label3D {
   }
 
   /** Scale */
-  public scale (scale: THREE.Vector3, anchor: THREE.Vector3) {
+  public scale (scale: THREE.Vector3, anchor: THREE.Vector3, local: boolean) {
+    const inverseRotation = new THREE.Quaternion()
+    inverseRotation.copy(this.orientation)
+    inverseRotation.inverse()
+
+    if (!local) {
+      scale = rotateScale(scale, this.orientation)
+    }
     this._shape.scale.multiply(scale)
+
     this._shape.position.sub(anchor)
+    this._shape.position.applyQuaternion(inverseRotation)
     this._shape.position.multiply(scale)
+    this._shape.position.applyQuaternion(this.orientation)
     this._shape.position.add(anchor)
+
+    // const localAnchor = this._shape.worldToLocal(anchor)
+
+    // const delta = new THREE.Vector3()
+    // delta.copy(localAnchor)
+    // delta.multiplyScalar(-1)
+    // delta.multiply(scale)
+    // delta.applyQuaternion(this.orientation)
+
+    // this._shape.position.add(delta)
+
     this._labelList.addUpdatedLabel(this)
   }
 
@@ -165,12 +187,22 @@ export class Box3D extends Label3D {
     return this._shape.quaternion
   }
 
+  /** scale of box */
+  public get size (): THREE.Vector3 {
+    return this._shape.scale
+  }
+
   /** bounds of box */
-  public get bounds (): THREE.Box3 {
-    this._shape.updateMatrixWorld(true)
-    this._shape.box.geometry.computeBoundingBox()
-    this._shape.box.geometry.boundingBox.applyMatrix4(this._shape.matrixWorld)
-    return this._shape.box.geometry.boundingBox
+  public bounds (local?: boolean): THREE.Box3 {
+    const box = new THREE.Box3()
+    if (!local) {
+      box.copy(this._shape.box.geometry.boundingBox)
+      this._shape.updateMatrixWorld(true)
+      box.applyMatrix4(this._shape.matrixWorld)
+    } else {
+      box.setFromCenterAndSize(this.center, this.size)
+    }
+    return box
   }
 
   /**

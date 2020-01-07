@@ -56,9 +56,4 @@ export class ScaleControl extends Controller {
     }
     this._local = true
   }
-
-  /** Toggle local/world */
-  public toggleFrame () {
-    this._local = true
-  }
 }

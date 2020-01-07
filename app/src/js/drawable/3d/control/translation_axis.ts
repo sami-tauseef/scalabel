@@ -78,10 +78,16 @@ export class TranslationAxis extends THREE.Group
     oldIntersection: THREE.Vector3,
     newProjection: THREE.Ray,
     dragPlane: THREE.Plane,
-    labels: Label3D[]
+    labels: Label3D[],
+    _bounds: THREE.Box3,
+    local: boolean
   ): THREE.Vector3 {
     const direction = new THREE.Vector3()
     direction.copy(this._direction)
+
+    if (local) {
+      direction.applyQuaternion(labels[0].orientation)
+    }
 
     const worldDirection = new THREE.Vector3()
     worldDirection.copy(this._direction)

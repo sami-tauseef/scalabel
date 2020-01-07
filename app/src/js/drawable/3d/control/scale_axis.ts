@@ -89,7 +89,8 @@ export class ScaleAxis extends THREE.Group implements ControlUnit {
     newProjection: THREE.Ray,
     dragPlane: THREE.Plane,
     labels: Label3D[],
-    bounds: THREE.Box3
+    bounds: THREE.Box3,
+    local: boolean
   ): THREE.Vector3 {
     const direction = new THREE.Vector3()
     direction.copy(this._direction)
@@ -147,6 +148,9 @@ export class ScaleAxis extends THREE.Group implements ControlUnit {
     scaleFactor.copy(dimensions)
     scaleFactor.add(scaleDelta)
     scaleFactor.divide(dimensions)
+    scaleFactor.x = Math.abs(scaleFactor.x)
+    scaleFactor.y = Math.abs(scaleFactor.y)
+    scaleFactor.z = Math.abs(scaleFactor.z)
 
     const center = new THREE.Vector3()
     bounds.getCenter(center)
@@ -157,8 +161,14 @@ export class ScaleAxis extends THREE.Group implements ControlUnit {
     anchor.divideScalar(-2.0)
     anchor.add(center)
 
+    if (local) {
+      anchor.sub(labels[0].center)
+      anchor.applyQuaternion(labels[0].orientation)
+      anchor.add(labels[0].center)
+    }
+
     for (const label of labels) {
-      label.scale(scaleFactor, anchor)
+      label.scale(scaleFactor, anchor, local)
     }
 
     return nextIntersection

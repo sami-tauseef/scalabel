@@ -60,7 +60,9 @@ export class TranslationPlane extends THREE.Mesh
     oldIntersection: THREE.Vector3,
     newProjection: THREE.Ray,
     _dragPlane: THREE.Plane,
-    labels: Label3D[]
+    labels: Label3D[],
+    _bounds: THREE.Box3,
+    local: boolean
   ): THREE.Vector3 {
     const normal = new THREE.Vector3()
     normal.copy(this._normal)
@@ -86,6 +88,10 @@ export class TranslationPlane extends THREE.Mesh
     const delta = new THREE.Vector3()
     delta.copy(newIntersection)
     delta.sub(localIntersection)
+
+    if (local) {
+      delta.applyQuaternion(labels[0].orientation)
+    }
 
     if (this.parent) {
       newIntersection.applyMatrix4(this.parent.matrixWorld)

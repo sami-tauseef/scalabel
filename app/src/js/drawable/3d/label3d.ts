@@ -222,7 +222,9 @@ export abstract class Label3D {
   public abstract translate (delta: THREE.Vector3): void
 
   /** Scale label */
-  public abstract scale (scale: THREE.Vector3, anchor: THREE.Vector3): void
+  public abstract scale (
+    scale: THREE.Vector3, anchor: THREE.Vector3, local: boolean
+  ): void
 
   /** Center of label */
   public get center (): THREE.Vector3 {
@@ -234,8 +236,13 @@ export abstract class Label3D {
     return new THREE.Quaternion()
   }
 
+  /** Size of the label */
+  public get size (): THREE.Vector3 {
+    return new THREE.Vector3()
+  }
+
   /** Bounds of label */
-  public get bounds (): THREE.Box3 {
+  public bounds (_local?: boolean): THREE.Box3 {
     return new THREE.Box3()
   }
 

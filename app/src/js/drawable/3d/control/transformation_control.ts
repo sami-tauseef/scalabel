@@ -71,6 +71,7 @@ export class TransformationControl extends THREE.Group {
       case Key.Q_UP:
       case Key.Q_LOW:
         this._currentController.toggleFrame()
+        this.updateBounds()
         return true
       case Key.T_UP:
       case Key.T_LOW:
@@ -142,8 +143,13 @@ export class TransformationControl extends THREE.Group {
   private updateBounds () {
     this._bounds.makeEmpty()
     for (const label of this._labels) {
-      this._bounds.union(label.bounds)
+      this._bounds.union(label.bounds(this._currentController.local))
     }
     this._bounds.getCenter(this.position)
+    if (this._currentController.local) {
+      this.quaternion.copy(this._labels[0].orientation)
+    } else {
+      this.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), 0)
+    }
   }
 }

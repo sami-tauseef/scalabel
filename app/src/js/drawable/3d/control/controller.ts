@@ -8,7 +8,8 @@ export interface ControlUnit extends THREE.Object3D {
     newProjection: THREE.Ray,
     dragPlane: THREE.Plane,
     labels: Label3D[],
-    bounds: THREE.Box3
+    bounds: THREE.Box3,
+    local: boolean
   ) => THREE.Vector3
   /** set highlight */
   setHighlighted: (intersection ?: THREE.Intersection) => boolean
@@ -47,7 +48,6 @@ export abstract class Controller extends THREE.Object3D {
     this._highlightedUnit = null
     this._dragPlane = new THREE.Plane()
     this._projection = new THREE.Ray()
-    this.matrixAutoUpdate = false
     this._labels = labels
     this._bounds = bounds
   }
@@ -96,7 +96,8 @@ export abstract class Controller extends THREE.Object3D {
         projection,
         this._dragPlane,
         this._labels,
-        this._bounds
+        this._bounds,
+        this._local
       )
 
       this._intersectionPoint.copy(newIntersection)
@@ -121,10 +122,17 @@ export abstract class Controller extends THREE.Object3D {
     }
   }
 
+  /** Return true if working in local frame */
+  public get local (): boolean {
+    return this._local
+  }
+
   /** Toggle local/world */
   public toggleFrame () {
-    if (this._labels.length > 0) {
+    if (this._labels.length === 1) {
       this._local = !this._local
+    } else {
+      this._local = false
     }
   }
 }
