@@ -8,8 +8,8 @@ import { RotationRing } from './rotation_ring'
  * perform rotation ops
  */
 export class RotationControl extends Controller {
-  constructor (labels: Label3D[]) {
-    super(labels)
+  constructor (labels: Label3D[], bounds: THREE.Box3) {
+    super(labels, bounds)
     this._controlUnits.push(
       new RotationRing(
         new THREE.Vector3(1, 0, 0),

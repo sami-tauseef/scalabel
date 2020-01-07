@@ -7,7 +7,8 @@ export interface ControlUnit extends THREE.Object3D {
     oldIntersection: THREE.Vector3,
     newProjection: THREE.Ray,
     dragPlane: THREE.Plane,
-    labels: Label3D[]
+    labels: Label3D[],
+    bounds: THREE.Box3
   ) => THREE.Vector3
   /** set highlight */
   setHighlighted: (intersection ?: THREE.Intersection) => boolean
@@ -35,8 +36,10 @@ export abstract class Controller extends THREE.Object3D {
   protected _projection: THREE.Ray
   /** labels to transform */
   protected _labels: Label3D[]
+  /** bounds of the labels */
+  protected _bounds: THREE.Box3
 
-  constructor (labels: Label3D[]) {
+  constructor (labels: Label3D[], bounds: THREE.Box3) {
     super()
     this._controlUnits = []
     this._local = true
@@ -46,6 +49,7 @@ export abstract class Controller extends THREE.Object3D {
     this._projection = new THREE.Ray()
     this.matrixAutoUpdate = false
     this._labels = labels
+    this._bounds = bounds
   }
 
   /** Returns whether this is highlighted */
@@ -91,7 +95,8 @@ export abstract class Controller extends THREE.Object3D {
         this._intersectionPoint,
         projection,
         this._dragPlane,
-        this._labels
+        this._labels,
+        this._bounds
       )
 
       this._intersectionPoint.copy(newIntersection)

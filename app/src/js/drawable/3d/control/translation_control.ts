@@ -9,8 +9,8 @@ import { TranslationPlane } from './translation_plane'
  * Groups TranslationAxis's and TranslationPlanes to perform translation ops
  */
 export class TranslationControl extends Controller {
-  constructor (labels: Label3D[]) {
-    super(labels)
+  constructor (labels: Label3D[], bounds: THREE.Box3) {
+    super(labels, bounds)
     this._controlUnits = []
     this._controlUnits.push(
       new TranslationAxis(new THREE.Vector3(1, 0, 0), RED)

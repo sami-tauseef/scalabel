@@ -27,12 +27,13 @@ export class TransformationControl extends THREE.Group {
   constructor () {
     super()
     this._labels = []
-    this._translationControl = new TranslationControl(this._labels)
-    this._rotationControl = new RotationControl(this._labels)
-    this._scaleControl = new ScaleControl(this._labels)
+    this._bounds = new THREE.Box3()
+    this._translationControl =
+      new TranslationControl(this._labels, this._bounds)
+    this._rotationControl = new RotationControl(this._labels, this._bounds)
+    this._scaleControl = new ScaleControl(this._labels, this._bounds)
     this._currentController = this._rotationControl
     this.add(this._currentController)
-    this._bounds = new THREE.Box3()
   }
 
   /** Add new label to control for transforming */

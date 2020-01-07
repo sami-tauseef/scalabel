@@ -7,8 +7,8 @@ import { ScaleAxis } from './scale_axis'
  * perform scaling ops
  */
 export class ScaleControl extends Controller {
-  constructor (labels: Label3D[]) {
-    super(labels)
+  constructor (labels: Label3D[], bounds: THREE.Box3) {
+    super(labels, bounds)
     this._controlUnits.push(
       new ScaleAxis(
         'x',
