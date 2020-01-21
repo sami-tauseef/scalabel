@@ -11,7 +11,6 @@ import {
   PathPoint2DType,
   Plane3DType,
   PointCloudViewerConfigType,
-  PolygonType,
   RectType,
   Select,
   SensorType,
@@ -71,19 +70,6 @@ export function makeRect (params: Partial<RectType> = {}): RectType {
     y1: -1,
     x2: -1,
     y2: -1,
-    ...params
-  }
-}
-
-/**
- * Initialize a polygon
- * @param {{}} params
- * @return {PolygonType}
- */
-export function makePolygon
-  (params: Partial<PolygonType> = {}): PolygonType {
-  return {
-    points: [],
     ...params
   }
 }

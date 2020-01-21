@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { ShapeType } from '../../functional/types'
 import { TransformationControl } from './control/transformation_control'
-import Label3D from './label3d'
 
 /**
  * Base shape class
@@ -11,17 +10,14 @@ export abstract class Shape3D extends THREE.Object3D {
   protected _id: number
   /** shape state */
   protected _shape: ShapeType | null
-  /** corresponding label object */
-  protected _label: Label3D
   /** whether highlighted */
   protected _highlighted: boolean
   /** controls */
   protected _control: TransformationControl | null
 
-  constructor (label: Label3D) {
+  constructor () {
     super()
     this._id = -1
-    this._label = label
     this._shape = null
     this._highlighted = false
     this._control = null
@@ -30,11 +26,6 @@ export abstract class Shape3D extends THREE.Object3D {
   /** Get shape id */
   public get id (): number {
     return this._id
-  }
-
-  /** Get associated label */
-  public get label (): Label3D {
-    return this._label
   }
 
   /** return shape type */
