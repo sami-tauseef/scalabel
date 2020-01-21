@@ -1,7 +1,5 @@
 import { addDuplicatedTrack } from '../../action/track'
 import { CHANGE_SHAPES } from '../../action/types'
-import { Box2D } from '../../drawable/2d/box2d'
-import { Rect2D } from '../../drawable/2d/rect2d'
 import { makeLabel } from '../../functional/states'
 import { ItemType, RectType, ShapeType } from '../../functional/types'
 import { Vector2D } from '../../math/vector2d'
@@ -222,7 +220,7 @@ export class LinearInterpolationBox2DPolicy extends TrackPolicy {
     label: Readonly<Label>,
     sensors: number[]
   ) {
-    const rect = ((label as Box2D).shapes[0] as Rect2D).toRect()
+    const rect = (label.shapeStates()[2][0]) as RectType
     const labelObject = makeLabel({
       type: types.LabelTypeName.BOX_2D,
       category: label.category,

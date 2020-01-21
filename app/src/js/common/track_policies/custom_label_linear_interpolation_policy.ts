@@ -35,7 +35,7 @@ export class LinearInterpolationCustomLabel2DPolicy extends TrackPolicy {
   ) {
     const [,shapeTypes, shapeStates] = (label as CustomLabel2D).shapeStates()
     const labelObject = makeLabel(
-      { ...label.label, sensors }
+      { ...label.labelState, sensors }
     )
 
     const state = Session.getState()

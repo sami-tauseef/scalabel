@@ -303,7 +303,7 @@ export class Label3DHandler {
         } else {
           Session.dispatch(addLabel(
             this._selectedItemIndex,
-            drawable.label,
+            drawable.labelState,
             types,
             shapes
           ))
@@ -316,8 +316,8 @@ export class Label3DHandler {
           ids,
           shapes
         ))
-        if (Session.tracking && drawable.label.track in Session.tracks) {
-          Session.tracks[drawable.label.track].onLabelUpdated(
+        if (Session.tracking && drawable.labelState.track in Session.tracks) {
+          Session.tracks[drawable.labelState.track].onLabelUpdated(
             this._selectedItemIndex,
             shapes
           )

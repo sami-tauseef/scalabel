@@ -57,6 +57,7 @@ export class Label2DHandler {
         const state = this._state
 
         const label = makeDrawableLabel2D(
+          Session.label2dList,
           state.task.config.labelTypes[state.user.select.labelType],
           state.task.config.label2DTemplates
         )
@@ -153,14 +154,14 @@ export class Label2DHandler {
               this._selectedItemIndex, selectedLabel, [-1]
             )
           } else {
-            const label = selectedLabel.label
+            const label = selectedLabel.labelState
             Session.dispatch(addLabel(
               this._selectedItemIndex, label, shapeTypes, shapeStates
             ))
           }
         } else {
         // Update existing label
-          const label = selectedLabel.label
+          const label = selectedLabel.labelState
           Session.dispatch(changeShapes(
             this._selectedItemIndex, shapeIds, shapeStates
           ))
