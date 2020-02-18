@@ -152,14 +152,19 @@ export interface ImageViewerConfigType extends ViewerConfigType {
   displayLeft: number
 }
 
-export interface PointCloudViewerConfigType extends ViewerConfigType {
+export interface Camera3dType {
   /** Camera position */
   position: Vector3Type
   /** Viewing direction */
   target: Vector3Type
   /** Up direction of the camera */
   verticalAxis: Vector3Type
-  /** Camera rotation lock */
+}
+
+export interface PointCloudViewerConfigType extends ViewerConfigType {
+  /** Cameras for each item */
+  cameras: { [item: number]: Camera3dType}
+  /** Rotation lock */
   lockStatus: number
 }
 

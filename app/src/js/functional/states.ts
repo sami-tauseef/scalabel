@@ -1,8 +1,9 @@
 import _ from 'lodash'
 import * as types from '../common/types'
 import {
-  ConfigType, CubeType,
-  ExtrinsicsType, HomographyViewerConfigType,
+  Camera3dType, ConfigType,
+  CubeType, ExtrinsicsType,
+  HomographyViewerConfigType,
   Image3DViewerConfigType,
   ImageViewerConfigType,
   IndexedShapeType,
@@ -27,6 +28,7 @@ import {
   TaskType,
   TrackType,
   UserType,
+  Vector3Type,
   ViewerConfigType
 } from './types'
 
@@ -187,6 +189,19 @@ export function makeImageViewerConfig (
   }
 }
 
+/** Make 3d camera state */
+export function makeCamera3d (
+  position: Vector3Type = { x: 0, y: 0, z: 0 },
+  target: Vector3Type = { x: 10.0, y: 0.0, z: 0.0 },
+  verticalAxis: Vector3Type = { x: 0.0, y: 0.0, z: 1.0 }
+): Camera3dType {
+  return {
+    position,
+    target,
+    verticalAxis
+  }
+}
+
 /**
  * Make a new point cloud viewer config
  * @return {PointCloudViewerConfigType}
@@ -195,9 +210,7 @@ export function makePointCloudViewerConfig (
   pane: number, sensor: number = -1
 ): PointCloudViewerConfigType {
   return {
-    position: { x: 0.0, y: 0.0, z: 0.0 },
-    target: { x: 10.0, y: 0.0, z: 0.0 },
-    verticalAxis: { x: 0.0, y: 0.0, z: 1.0 },
+    cameras: {},
     lockStatus: 0,
     show: true,
     type: types.ViewerConfigTypeName.POINT_CLOUD,

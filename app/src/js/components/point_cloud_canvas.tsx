@@ -217,7 +217,8 @@ class PointCloudCanvas extends DrawableCanvas<Props> {
 
     const config =
       state.user.viewerConfigs[this.props.id] as PointCloudViewerConfigType
-    this.target.position.set(config.target.x, config.target.y, config.target.z)
+    const camera = config.cameras[item]
+    this.target.position.set(camera.target.x, camera.target.y, camera.target.z)
   }
 
   /**
