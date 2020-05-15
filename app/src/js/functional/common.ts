@@ -7,7 +7,7 @@ import { IdType } from 'aws-sdk/clients/workdocs'
 import _ from 'lodash'
 import * as types from '../action/types'
 import { LabelTypeName, ViewerConfigTypeName } from '../common/types'
-import { isValidId, makeDefaultId, makeLabel, makePane, makeTrack } from './states'
+import { genLabelId, genShapeId, isValidId, makeDefaultId, makeLabel, makePane, makeTrack } from './states'
 import {
   ItemType,
   LabelType,
@@ -134,16 +134,20 @@ function addLabelsToItem (
   const newShapeIds: IdType[] = []
   const newShapes: ShapeType[] = []
   newLabels.forEach((label, index) => {
-    const shapeIds = shapes[index].map((shape) => shape.id)
+    const newLabelId = genLabelId()
+    const shapeIds: string[] = []
     const newLabelShapes = shapes[index].map(
       (s) => {
         const shape = _.cloneDeep(s)
-        shape.label.push(label.id)
+        shape.id = genShapeId()
+        shape.label.push(newLabelId)
+        shapeIds.push(shape.id)
         return shape
       })
     const order = taskStatus.maxOrder + 1 + index
     const validChildren = label.children.filter((id) => isValidId(id))
     label = updateObject(label, {
+      id: newLabelId,
       item: item.index,
       order,
       shapes: label.shapes.concat(shapeIds),
